@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TrelloProject.BLL.Extensions;
+using TrelloProject.BLL.Interfaces;
+using TrelloProject.BLL.Services;
 
 namespace TrelloProject
 {
@@ -38,6 +40,8 @@ namespace TrelloProject
 
             services.AddDbContextBllExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
 
+            services.AddScoped<IBoardDTOService, BoardDTOService>();
+            services.AddBLLDependencyInjection();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
