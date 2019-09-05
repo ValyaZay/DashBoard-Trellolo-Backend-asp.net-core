@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TrelloProject.BLL.Interfaces;
-using TrelloProject.BLL.DTO;
+using TrelloProject.BLL.Interfaces.ServicesInterfaces;
+using TrelloProject.DTOs;
 
 namespace TrelloProject.WEB.Controllers
 {
@@ -52,27 +49,6 @@ namespace TrelloProject.WEB.Controllers
             return Ok(boardDTO);
         }
 
-        //// POST: api/Board
-        //[HttpPost]
-        //public void Post([FromBody] BoardDTO boardDTO)
-        //{
-        //    try
-        //    {
-        //        int id = _boardRepository.Create(boardDTO);
-        //    }
-        //    catch (DbUpdateException)
-        //}
-
-        //// PUT: api/Board/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE: api/ApiWithActions/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+        
     }
 }

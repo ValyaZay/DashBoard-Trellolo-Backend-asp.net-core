@@ -1,53 +1,31 @@
 ﻿using AutoMapper;
-using System;
+
 using System.Collections.Generic;
-using System.Text;
-using TrelloProject.BLL.DTO;
-using TrelloProject.BLL.Interfaces;
-using TrelloProject.DAL.Entities;
-using TrelloProject.DAL.Interfaces;
+
+using TrelloProject.BLL.Interfaces.ServicesInterfaces;
+using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
+using TrelloProject.DTOs;
 
 namespace TrelloProject.BLL.Services
 {
     public class BoardDTOService : IBoardDTOService
     {
-        private readonly IBoardRepository _boardRepository;
-        private IMapper mapper;
-        private MapperConfiguration config;
-
-        private BoardDTO MapBoardDTO (Board board)
-        {
-            config = new MapperConfiguration(cfg => cfg.CreateMap<Board, BoardDTO>());
-            mapper = config.CreateMapper();
-            BoardDTO boardDTO = mapper.Map<Board, BoardDTO>(board);
-            return boardDTO;
-        }
-
-
-        public BoardDTOService(IBoardRepository boardRepository)
+        private readonly IBoardDTORepository _boardRepository;
+        
+        public BoardDTOService(IBoardDTORepository boardRepository)
         {
             _boardRepository = boardRepository;
         }
+
         public List<BoardDTO> GetAllBoardsDTO()
         {
-            IEnumerable<Board> boards = _boardRepository.GetAllBoards();
-            List<BoardDTO> boardsDTO = new List<BoardDTO>();
-
-            foreach (Board board in boards)
-            {
-                BoardDTO boardDTO = MapBoardDTO(board);
-                boardsDTO.Add(boardDTO);
-            }
-
-            return boardsDTO;
+            return _boardRepository.GetAllBoards();
         }
 
         public BoardDTO GetBoardDTO(int Id)
         {
-            Board board = _boardRepository.GetBoard(Id);
-            BoardDTO boardDTO = MapBoardDTO(board);
-
-            return boardDTO;
+           return _boardRepository.GetBoard(Id);
+            
         }
     }
 }

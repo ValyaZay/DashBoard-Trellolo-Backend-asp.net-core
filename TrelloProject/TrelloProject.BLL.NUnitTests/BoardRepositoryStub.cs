@@ -1,30 +1,31 @@
 ﻿using System.Collections.Generic;
-using TrelloProject.DAL.Entities;
-using TrelloProject.DAL.Interfaces;
+using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
+using TrelloProject.DTOs;
 
 namespace TrelloProject.BLL.Tests
 {
-    class BoardRepositoryStub : IBoardRepository
+    
+    class BoardRepositoryStub : IBoardDTORepository
     {
-        private IEnumerable<Board> _list;
-        private Board _board;
+        private List<BoardDTO> _list;
+        private BoardDTO _board;
 
-        public void SetReturnList(IEnumerable<Board> list)
+        public void SetReturnList(List<BoardDTO> list)
         {
             _list = list;
         }
 
-        public IEnumerable<Board> GetAllBoards()
+        public List<BoardDTO> GetAllBoards()
         {
             return _list;
         }
 
-        public Board GetBoard(int Id)
+        public BoardDTO GetBoard(int Id)
         {
             return _board;
         }
 
-        public void SetReturnObject(Board board)
+        public void SetReturnObject(BoardDTO board)
         {
             _board = board;
         }

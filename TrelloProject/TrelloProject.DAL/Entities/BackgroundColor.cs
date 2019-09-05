@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TrelloProject.DAL.Entities
 {
-    public class BackgroundColor
+    internal class BackgroundColor
     {
         public int BackgroundColorId { get; set; }
         public string ColorHex { get; set; }

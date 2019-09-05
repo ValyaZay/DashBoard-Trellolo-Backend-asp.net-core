@@ -1,8 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
-using TrelloProject.BLL.DTO;
 using TrelloProject.BLL.Services;
-using TrelloProject.DAL.Entities;
+using TrelloProject.DTOs;
 
 namespace TrelloProject.BLL.Tests
 {
@@ -14,10 +13,10 @@ namespace TrelloProject.BLL.Tests
         {
             //Arrange
             var stub = new BoardRepositoryStub();
-            IEnumerable<Board> list = new List<Board> {
-                            new Board { BoardId = 1, Title = "TestBoard1", CurrentBackgroundColorId = 1 },
-                            new Board { BoardId = 2, Title = "TestBoard2", CurrentBackgroundColorId = 1 },
-                            new Board { BoardId = 3, Title = "TestBoard3", CurrentBackgroundColorId = 1 }
+            List<BoardDTO> list = new List<BoardDTO> {
+                            new BoardDTO { BoardId = 1, Title = "TestBoard1", CurrentBackgroundColorId = 1 },
+                            new BoardDTO { BoardId = 2, Title = "TestBoard2", CurrentBackgroundColorId = 1 },
+                            new BoardDTO { BoardId = 3, Title = "TestBoard3", CurrentBackgroundColorId = 1 }
                         };
 
             stub.SetReturnList(list);
@@ -37,7 +36,7 @@ namespace TrelloProject.BLL.Tests
         {
             //Arrange
             var stub = new BoardRepositoryStub();
-            Board board = new Board { BoardId = 1, Title = "TestBoard1", CurrentBackgroundColorId = 1 };
+            BoardDTO board = new BoardDTO { BoardId = 1, Title = "TestBoard1", CurrentBackgroundColorId = 1 };
 
             stub.SetReturnObject(board);
 

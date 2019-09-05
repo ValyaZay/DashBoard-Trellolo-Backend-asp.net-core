@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TrelloProject.DAL.Entities
 {
-    public class CardList
+    internal class CardList
     {
         public int CardListId { get; set; }
         public string Title { get; set; }

@@ -6,7 +6,7 @@ using TrelloProject.DAL.Entities;
 
 namespace TrelloProject.DAL.EF
 {
-    public class TrelloDbContext : DbContext
+    internal class TrelloDbContext : DbContext
     {
         public TrelloDbContext(DbContextOptions<TrelloDbContext> options)
             : base(options)

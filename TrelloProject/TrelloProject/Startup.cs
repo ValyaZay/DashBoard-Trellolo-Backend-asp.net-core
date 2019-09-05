@@ -1,18 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TrelloProject.BLL.Extensions;
-using TrelloProject.BLL.Interfaces;
+using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.BLL.Services;
+using TrelloProject.DAL.Extensions;
+
 
 namespace TrelloProject
 {
@@ -38,10 +35,11 @@ namespace TrelloProject
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddDbContextBllExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
-
+            services.AddDbContextDALExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
+            
             services.AddScoped<IBoardDTOService, BoardDTOService>();
-            services.AddBLLDependencyInjection();
+            
+            services.AddDALDependencyInjection();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

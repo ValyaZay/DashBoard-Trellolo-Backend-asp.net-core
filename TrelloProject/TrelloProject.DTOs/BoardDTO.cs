@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TrelloProject.DAL.Entities;
+﻿
 
-namespace TrelloProject.BLL.DTO
+namespace TrelloProject.DTOs
 {
     public class BoardDTO
     {
