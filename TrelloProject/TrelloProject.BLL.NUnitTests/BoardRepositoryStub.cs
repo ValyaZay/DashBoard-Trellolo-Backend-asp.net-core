@@ -34,5 +34,15 @@ namespace TrelloProject.BLL.Tests
         {
             return 1;
         }
+
+        public int Update(BoardDTO updatedBoardDTO)
+        {
+            return 1;
+        }
+
+        public void Delete(int id)
+        {
+            
+        }
     }
 }

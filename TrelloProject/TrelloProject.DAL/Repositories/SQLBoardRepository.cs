@@ -40,14 +40,24 @@ namespace TrelloProject.DAL.Repositories
 
         public BoardDTO GetBoard(int id)
         {
-            Board board = _trelloDbContext.Boards.Find(id);
-            BoardDTO boardDTO = MapToBoardDTO(board);
-            return boardDTO;
+            try
+            {
+                Board board = _trelloDbContext.Boards.Find(id);
+                BoardDTO boardDTO = MapToBoardDTO(board);
+                return boardDTO;
+            }
+            catch
+            {
+                throw new NullReferenceException();
+            }
+                
+                
         }
 
         public List<BoardDTO> GetAllBoards()
         {
             IEnumerable<Board> boards = _trelloDbContext.Boards;
+
             List<BoardDTO> boardsDTO = new List<BoardDTO>();
 
             foreach (Board board in boards)
@@ -65,6 +75,23 @@ namespace TrelloProject.DAL.Repositories
             _trelloDbContext.SaveChanges();
                         
             return newBoard.BoardId;
+        }
+
+        public int Update(BoardDTO updatedBoardDTO)
+        {
+            Board boardToUpdate = _trelloDbContext.Boards.Find(updatedBoardDTO.BoardId);
+            boardToUpdate.Title = updatedBoardDTO.Title;
+            boardToUpdate.CurrentBackgroundColorId = updatedBoardDTO.CurrentBackgroundColorId;
+            _trelloDbContext.SaveChanges();
+            return updatedBoardDTO.BoardId;
+            
+        }
+
+        public void Delete(int id)
+        {
+            Board boardToDelete = _trelloDbContext.Boards.Find(id);
+            _trelloDbContext.Remove(boardToDelete);
+            _trelloDbContext.SaveChanges();
         }
     }
 }

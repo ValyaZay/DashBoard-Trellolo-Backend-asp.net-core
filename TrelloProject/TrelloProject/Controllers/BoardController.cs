@@ -6,6 +6,7 @@ using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.DTOsAndViewModels.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace TrelloProject.WEB.Controllers
 {
@@ -55,7 +56,6 @@ namespace TrelloProject.WEB.Controllers
         [HttpPost]
         public IActionResult Create(BoardCreateViewModel boardCreateViewModel)
         {
-            
             if (ModelState.IsValid)
             {
                 try
@@ -64,15 +64,57 @@ namespace TrelloProject.WEB.Controllers
                     return Ok(id);
                 }
 
-                catch
+                catch(Exception)
                 {
                     return BadRequest(error: "Board Title " + boardCreateViewModel.Title + " already exists");
                 }
                 
             }
-            return BadRequest("Insert the Board Title");
+            return BadRequest("Insert valid data");
+        }
 
+        // PUT: api/Board/5
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, BoardUpdateViewModel boardUpdateViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _boardDTOService.UpdateBoardDTO(id, boardUpdateViewModel);
+                    return Ok();
+                    
+                }
+            
+                catch (NullReferenceException)
+                {
+                    return NotFound("The item with ID=" + id + " does not exist");
+                }
+                catch (Exception)
+                {
+                    return BadRequest(error: "Board Title " + boardUpdateViewModel.Title + " already exists");
+                }
+                
+
+            }
+            return BadRequest("Insert valid data");
 
         }
+
+        // DELETE: api/Board/5
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                _boardDTOService.DeleteBoardDTO(id);
+                return Ok();
+            }
+            catch (NullReferenceException)
+            {
+                return NotFound("The item with ID=" + id + " does not exist");
+            } 
+        }
+
     }
 }
