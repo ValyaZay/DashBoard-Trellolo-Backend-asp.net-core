@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
 using TrelloProject.BLL.Services;
-using TrelloProject.DTOs;
+using TrelloProject.DTOsAndViewModels.DTOs;
 
 namespace TrelloProject.BLL.Tests
 {

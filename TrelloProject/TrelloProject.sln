@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.DAL", "Trello
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.BLL.NUnitTests", "TrelloProject.BLL.NUnitTests\TrelloProject.BLL.NUnitTests.csproj", "{705A01B3-C22D-44F6-8328-D19886647A9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrelloProject.IntegrationTests", "TrelloProject.IntegrationTests\TrelloProject.IntegrationTests.csproj", "{E488A075-30DC-4031-B755-DE37D1E83002}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.IntegrationTests", "TrelloProject.IntegrationTests\TrelloProject.IntegrationTests.csproj", "{E488A075-30DC-4031-B755-DE37D1E83002}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrelloProject.DTOs", "TrelloProject.DTOs\TrelloProject.DTOs.csproj", "{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.DTOsAndViewModels", "TrelloProject.DTOs\TrelloProject.DTOsAndViewModels.csproj", "{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,11 +6,11 @@ using Xunit;
 
 namespace TrelloProject.IntegrationTests
 {
-    public class UnitTest1
+    public class IntegrationTest
     {
         private readonly HttpClient _client;
 
-        public UnitTest1()
+        public IntegrationTest()
         {
             var appFactory = new WebApplicationFactory<Startup>();
             _client = appFactory.CreateClient();
@@ -19,10 +19,12 @@ namespace TrelloProject.IntegrationTests
         }
 
         [Fact]
-        public async Task Test1()
+        public async Task Get()
         {
             var response = await _client.GetAsync("http://localhost:54344/api/board");
 
         }
+
+
     }
 }

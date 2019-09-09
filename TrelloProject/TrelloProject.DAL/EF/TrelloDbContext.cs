@@ -16,6 +16,10 @@ namespace TrelloProject.DAL.EF
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Board>()
+                .HasIndex(board => board.Title)
+                .IsUnique();
+
             modelBuilder.Entity<User>()
                 .HasData(
                 new User() { UserId = 1, FirstName = "Valya", LastName = "Zay", Email = "valya@valya.net" },
@@ -110,6 +114,8 @@ namespace TrelloProject.DAL.EF
                 .WithMany(user => user.CardComments)
                 .HasForeignKey(comment => comment.CreatedById)
                 .OnDelete(0);
+
+            
 
         }
 

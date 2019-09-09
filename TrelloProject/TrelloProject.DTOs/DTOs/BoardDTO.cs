@@ -1,6 +1,6 @@
 ﻿
 
-namespace TrelloProject.DTOs
+namespace TrelloProject.DTOsAndViewModels.DTOs
 {
     public class BoardDTO
     {

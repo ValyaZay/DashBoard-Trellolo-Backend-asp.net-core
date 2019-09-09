@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using TrelloProject.DTOs;
+using TrelloProject.DTOsAndViewModels.DTOs;
+using TrelloProject.DTOsAndViewModels.ViewModels;
 
 namespace TrelloProject.BLL.Interfaces.ServicesInterfaces
 {
@@ -7,5 +8,6 @@ namespace TrelloProject.BLL.Interfaces.ServicesInterfaces
     {
         BoardDTO GetBoardDTO(int Id);
         List<BoardDTO> GetAllBoardsDTO();
+        int CreateBoardDTO(BoardCreateViewModel boardCreateViewModel);
     }
 }

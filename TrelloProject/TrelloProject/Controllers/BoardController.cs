@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+
+
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
-using TrelloProject.DTOs;
+using TrelloProject.DTOsAndViewModels.ViewModels;
+using TrelloProject.DTOsAndViewModels.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TrelloProject.WEB.Controllers
 {
@@ -49,6 +52,27 @@ namespace TrelloProject.WEB.Controllers
             return Ok(boardDTO);
         }
 
-        
+        [HttpPost]
+        public IActionResult Create(BoardCreateViewModel boardCreateViewModel)
+        {
+            
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
+                    return Ok(id);
+                }
+
+                catch
+                {
+                    return BadRequest(error: "Board Title " + boardCreateViewModel.Title + " already exists");
+                }
+                
+            }
+            return BadRequest("Insert the Board Title");
+
+
+        }
     }
 }

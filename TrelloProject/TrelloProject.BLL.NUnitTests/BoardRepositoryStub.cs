@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
-using TrelloProject.DTOs;
+using TrelloProject.DTOsAndViewModels.DTOs;
 
 namespace TrelloProject.BLL.Tests
 {
@@ -28,6 +28,11 @@ namespace TrelloProject.BLL.Tests
         public void SetReturnObject(BoardDTO board)
         {
             _board = board;
+        }
+
+        public int Create(BoardDTO newBoardDTO)
+        {
+            return 1;
         }
     }
 }
