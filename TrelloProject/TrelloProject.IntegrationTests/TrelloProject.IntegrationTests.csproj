@@ -15,7 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TrelloProject.DTOs\TrelloProject.DTOsAndViewModels.csproj" />
     <ProjectReference Include="..\TrelloProject\TrelloProject.WEB.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

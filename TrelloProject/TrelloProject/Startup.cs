@@ -66,6 +66,7 @@ namespace TrelloProject
             app.UseCookiePolicy();
 
             app.UseMvc();
+           
         }
     }
 }
