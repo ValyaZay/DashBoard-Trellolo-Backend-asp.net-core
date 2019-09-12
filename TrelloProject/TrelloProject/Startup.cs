@@ -1,14 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TrelloProject.BLL.Interfaces.ServicesInterfaces;
+using TrelloProject.BLL.Services;
+using TrelloProject.DAL.Extensions;
+
+
 
 namespace TrelloProject
 {
@@ -24,6 +27,9 @@ namespace TrelloProject
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
+
             services.AddHealthChecks();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -32,6 +38,13 @@ namespace TrelloProject
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+
+            services.AddDbContextDALExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
+            
+            services.AddScoped<IBoardDTOService, BoardDTOService>();
+            
+            services.AddDALDependencyInjection();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -59,6 +72,7 @@ namespace TrelloProject
             app.UseCookiePolicy();
 
             app.UseMvc();
+
         }
     }
 }
