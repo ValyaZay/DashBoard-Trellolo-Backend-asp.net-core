@@ -24,7 +24,7 @@ namespace TrelloProject.WEB.Controllers.V1
         }
 
 
-        // GET: api/Board
+        // GET: api/v1/Board
         [HttpGet(ApiRoutes.Board.GetAll)]
         public IActionResult Get()
         {
@@ -42,80 +42,84 @@ namespace TrelloProject.WEB.Controllers.V1
             
         }
 
-        //// GET: api/Board/5
-        //[HttpGet("{id}", Name = "Get")]
-        //public IActionResult GetById(int id)
-        //{
-        //    BoardDTO boardDTO = _boardDTOService.GetBoardDTO(id);
-        //    if(boardDTO == null)
-        //    {
-        //        return NotFound("The board with ID = " + id + " does not exist");
-        //    }
-        //    return Ok(boardDTO);
-        //}
+        //GET: api/v1/Board/5
+        [HttpGet(ApiRoutes.Board.GetById)]
+        public IActionResult GetById([FromRoute] int BoardId)
+        {
+            BoardDTO boardDTO = _boardDTOService.GetBoardDTO(BoardId);
+            if (boardDTO == null)
+            {
+                return NotFound("The board with ID = " + BoardId + " does not exist");
+            }
+            return Ok(boardDTO);
+        }
 
-        //[HttpPost]
-        //public IActionResult Create(BoardCreateViewModel boardCreateViewModel)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
-        //            return CreatedAtAction(nameof(GetById), new { id }, boardCreateViewModel);
-        //        }
+        //POST: api/v1/Board
+        [HttpPost(ApiRoutes.Board.Create)]
+        public IActionResult Create([FromBody] BoardCreateViewModel boardCreateViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
+                    var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
+                    var locationUri = baseUrl + "/" + ApiRoutes.Board.GetById.Replace("{BoardId}", id.ToString());
+                    return Created(locationUri, new BoardDTO { BoardId = id, Title = boardCreateViewModel.Title, CurrentBackgroundColorId = (int)boardCreateViewModel.CurrentBackgroundColorId });
+                    //return CreatedAtAction(nameof(GetById), new { id }, boardCreateViewModel);
+                }
 
-        //        catch (Exception)
-        //        {
-        //            return BadRequest(error: "Board Title " + boardCreateViewModel.Title + " already exists");
-        //        }
-                
-        //    }
-        //    return BadRequest("Insert valid data");
-        //}
+                catch (Exception)
+                {
+                    return BadRequest(error: "Board Title " + boardCreateViewModel.Title + " already exists");
+                }
 
-        //// PUT: api/Board/5
-        //[HttpPut("{id}")]
-        //public IActionResult Update(int id, BoardUpdateViewModel boardUpdateViewModel)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _boardDTOService.UpdateBoardDTO(id, boardUpdateViewModel);
-        //            return NoContent();
-                    
-        //        }
-            
-        //        catch (NullReferenceException)
-        //        {
-        //            return NotFound("The item with ID=" + id + " does not exist");
-        //        }
-        //        catch (Exception)
-        //        {
-        //            return BadRequest(error: "Board Title " + boardUpdateViewModel.Title + " already exists");
-        //        }
-                
+            }
+            return BadRequest("Insert valid data");
+        }
 
-        //    }
-        //    return BadRequest("Insert valid data");
+        // PUT: api/v1/Board/5
+        [HttpPut(ApiRoutes.Board.Update)]
+        public IActionResult Update([FromRoute] int BoardId, [FromBody] BoardUpdateViewModel boardUpdateViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _boardDTOService.UpdateBoardDTO(BoardId, boardUpdateViewModel);
+                    return NoContent();
 
-        //}
+                }
 
-        //// DELETE: api/Board/5
-        //[HttpDelete("{id}")]
-        //public IActionResult Delete(int id)
-        //{
-        //    try
-        //    {
-        //        _boardDTOService.DeleteBoardDTO(id);
-        //        return NoContent();
-        //    }
-        //    catch (NullReferenceException)
-        //    {
-        //        return NotFound("The item with ID=" + id + " does not exist");
-        //    } 
-        //}
+                catch (NullReferenceException)
+                {
+                    return NotFound("The item with ID=" + BoardId + " does not exist");
+                }
+                catch (Exception)
+                {
+                    return BadRequest(error: "Board Title " + boardUpdateViewModel.Title + " already exists");
+                }
+
+
+            }
+            return BadRequest("Insert valid data");
+
+        }
+
+        // DELETE: api/v1/Board/5
+        [HttpDelete(ApiRoutes.Board.Delete)]
+        public IActionResult Delete([FromRoute] int BoardId)
+        {
+            try
+            {
+                _boardDTOService.DeleteBoardDTO(BoardId);
+                return NoContent();
+            }
+            catch (NullReferenceException)
+            {
+                return NotFound("The item with ID=" + BoardId + " does not exist");
+            }
+        }
 
     }
 }

@@ -40,7 +40,8 @@ namespace TrelloProject.IntegrationTests
             var client = _factory.CreateClient();
 
             //Act
-            var response = await client.GetAsync(ApiRoutes.Board.GetById);
+            string urlToGetById = ApiRoutes.Board.GetById.Replace("{BoardId}", "16");
+            var response = await client.GetAsync(urlToGetById);
 
             //Assert
             response.EnsureSuccessStatusCode(); // Status Code 200-299

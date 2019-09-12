@@ -15,7 +15,15 @@ namespace TrelloProject.WEB.Contracts.V1
         public static class Board
         {
             public const string GetAll = Base + "/board";
-            //public const string GetById = Base + "/board" + {BoardId}
+
+            public const string GetById = Base + "/board/{BoardId}";
+
+            public const string Update = Base + "/board/{BoardId}";
+
+            public const string Delete = Base + "/board/{BoardId}";
+
+            public const string Create = Base + "/board";
+
         }
     }
 }
