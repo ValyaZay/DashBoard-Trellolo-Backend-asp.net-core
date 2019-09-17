@@ -5,6 +5,7 @@ using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using System.Linq;
 
 namespace TrelloProject.DAL.Repositories
 {

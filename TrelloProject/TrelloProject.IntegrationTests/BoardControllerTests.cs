@@ -1,72 +1,109 @@
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using TrelloProject.DTOsAndViewModels.DTOs;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.WEB.Contracts.V1;
 using Xunit;
 
 namespace TrelloProject.IntegrationTests
 {
-    public class BoardControllerTests : IClassFixture<WebApplicationFactory<Startup>>
+    public class BoardControllerTests : IntegrationTestBaseClass 
     {
-        private readonly WebApplicationFactory<Startup> _factory;
-
-        public BoardControllerTests(WebApplicationFactory<Startup> factory)
+        
+        [Fact]
+        public async Task Get_IfTheDBIsEmpty_ReturnsNotFoundResponse()
         {
-            _factory = factory;
+            // Arrange
+            
+            // Act
+            var response = await TestClient.GetAsync(ApiRoutes.Board.GetAll);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("There are no boards created.");
         }
 
         [Fact]
-        public async Task Get_EndpointsReturnSuccessAndCorrectContentType()
+        public async Task Create_ModelIsValid_ReturnsCreatedResponse()
         {
             //Arrange
-            var client = _factory.CreateClient();
-
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = "TestCreated", CurrentBackgroundColorId = BgColorEnum.Green };
+            
             //Act
-            var response = await client.GetAsync(ApiRoutes.Board.GetAll);
+            var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
+
 
             //Assert
-            response.EnsureSuccessStatusCode(); // Status Code 200-299
-            Assert.Equal("application/json; charset=utf-8",
-                response.Content.Headers.ContentType.ToString());
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
 
         [Fact]
-        public async Task GetById_EndpointsReturnSuccessAndCorrectContentType()
+        public async Task Create_ModelIsNOTValid_ReturnsBadRequestResponse()
         {
             //Arrange
-            var client = _factory.CreateClient();
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { };
 
             //Act
-            string urlToGetById = ApiRoutes.Board.GetById.Replace("{BoardId}", "16");
-            var response = await client.GetAsync(urlToGetById);
-
+            var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
+                       
             //Assert
-            response.EnsureSuccessStatusCode(); // Status Code 200-299
-            Assert.Equal("application/json; charset=utf-8",
-                response.Content.Headers.ContentType.ToString());
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("Insert valid data");
         }
 
-        [Fact(Skip ="An error is inside")]
-        public async Task Post_EndpointsReturnSuccessAndCorrectContentTypeAndLocation()
+        [Fact(Skip = "when the second item is created, OnModelCreating() is not hit and uniqueness of the board title is not checked")]
+        public async Task Create_BoardTitleAlreadyExists_ReturnsBadRequestResponse()
         {
             //Arrange
-            var client = _factory.CreateClient();
-             
-            var content = new BoardCreateViewModel() { Title = "Test222Post", CurrentBackgroundColorId = BgColorEnum.Blue };
-
-            var stringContent = new StringContent(content.ToString());
-
-
+            await SeedContext(new BoardCreateViewModel { Title = "TestCreated", CurrentBackgroundColorId = BgColorEnum.Green });
+            
+            BoardCreateViewModel boardToCreateWithTheSameTitle = new BoardCreateViewModel { Title = "TestCreated" };
+            
+            
             //Act
-            var response = await client.PostAsync("http://localhost:54344/api/board", stringContent);
+            var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardToCreateWithTheSameTitle);
 
             //Assert
-            response.EnsureSuccessStatusCode(); // Status Code 200-299
-            Assert.Equal("application/json; charset=utf-8", response.Content.Headers.ContentType.ToString());
-            Assert.Contains("http://localhost:54344/api/board", response.Content.Headers.ContentLocation.ToString());
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("Board Title " + boardToCreateWithTheSameTitle.Title + " already exists");
+        }
+
+        [Fact]
+        public async Task Create_BoardIsCreated_ReturnsBoardIdInLocation()
+        {
+            //Arrange
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = "TestCreated", CurrentBackgroundColorId = BgColorEnum.Green };
+
+            //Act
+            var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
+
+            //Assert
+            var createdBoard = await response.Content.ReadAsAsync<BoardDTO>();
+            var id = createdBoard.BoardId.ToString();
+            response.Headers.Location.ToString().Should().Contain($"api/v1/board/{id}");
+        }
+
+        [Fact]
+        public async Task GetById_WhenBoardExistsInTheDatabase_ReturnsBoard()
+        {
+            //Arrange
+            var createdBoard = await CreateBoardAsync( new BoardCreateViewModel { Title = "TestGetById", CurrentBackgroundColorId = BgColorEnum.Green });
+
+            //Act
+            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", createdBoard.BoardId.ToString()));
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var returnedBoard = await response.Content.ReadAsAsync<BoardDTO>();
+            returnedBoard.BoardId.Should().Be(createdBoard.BoardId);
+            returnedBoard.Title.Should().Be("TestGetById");
+            returnedBoard.CurrentBackgroundColorId.Should().Be((int)BgColorEnum.Green);
         }
     }
 }
