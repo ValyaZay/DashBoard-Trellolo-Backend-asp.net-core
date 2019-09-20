@@ -20,39 +20,29 @@ namespace TrelloProject.IntegrationTests
 
        protected IntegrationTestBaseClass()
         {
-            appFactory = new WebApplicationFactory<Startup>()
-                .WithWebHostBuilder(buidler =>
-                {
-                    buidler.ConfigureServices(services =>
-                    {
-                        services.RemoveDbContextDALExtension();
-                        services.AddDbContextDALExtension(options =>
-                        {
-                            options.UseInMemoryDatabase("TestDb");
-                        });
-                    });
-                });
+            appFactory = new WebApplicationFactory<Startup>();
+                //.WithWebHostBuilder(buidler =>
+                //{
+                //    buidler.ConfigureServices(services =>
+                //    {
+                //        services.RemoveDbContextDALExtension();
+                //        services.AddDbContextDALExtension(options =>
+                //        {
+                //            options.UseInMemoryDatabase("TestDb");
+                //        });
+                //    });
+                //});
             TestClient = appFactory.CreateClient();
             
         }
 
-        protected void DisposeAppFactory()
-        {
-            appFactory.Dispose(); 
-        }
+        
 
         protected async Task<BoardDTO> CreateBoardAsync(BoardCreateViewModel boardCreateViewModel)
         {
             var response =  await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
             return await response.Content.ReadAsAsync<BoardDTO>();
         }
-
-        protected async Task SeedContext(BoardCreateViewModel boardCreateViewModel)
-        {
-            await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
-            
-        }
-
     }
 
 }

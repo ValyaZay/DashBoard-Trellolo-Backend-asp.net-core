@@ -32,7 +32,7 @@ namespace TrelloProject.WEB.Controllers.V1
             int boardsCount = boardsDTO.Count();
             if(boardsCount == 0 )
             {
-                return NotFound("There are no boards created.");
+                return Ok("There are no boards created.");
             }
             else
             {
@@ -95,12 +95,6 @@ namespace TrelloProject.WEB.Controllers.V1
                 {
                     return NotFound("The item with ID=" + BoardId + " does not exist");
                 }
-                catch (Exception)
-                {
-                    return BadRequest(error: "Board Title " + boardUpdateViewModel.Title + " already exists");
-                }
-
-
             }
             return BadRequest("Insert valid data");
 
