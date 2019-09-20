@@ -34,11 +34,11 @@ namespace TrelloProject.BLL.Services
             {
                 throw new NullReferenceException("The item with ID=" + id + " does not exist");
             }
+            
             else
             {
                 _boardRepository.Delete(id);
             }
-            
         }
 
         public List<BoardDTO> GetAllBoardsDTO()

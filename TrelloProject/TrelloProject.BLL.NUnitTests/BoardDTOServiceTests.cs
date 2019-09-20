@@ -1,7 +1,11 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
+using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.BLL.Services;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using TrelloProject.DTOsAndViewModels.ViewModels;
 
 namespace TrelloProject.BLL.Tests
 {
@@ -12,17 +16,10 @@ namespace TrelloProject.BLL.Tests
         public void GetAllBoardsDTO_ByDefault_ReturnsListOfTypeBoardDTO()
         {
             //Arrange
-            var stub = new BoardRepositoryStub();
-            List<BoardDTO> list = new List<BoardDTO> {
-                            new BoardDTO { BoardId = 1, Title = "TestBoard1", CurrentBackgroundColorId = 1 },
-                            new BoardDTO { BoardId = 2, Title = "TestBoard2", CurrentBackgroundColorId = 1 },
-                            new BoardDTO { BoardId = 3, Title = "TestBoard3", CurrentBackgroundColorId = 1 }
-                        };
-
-            stub.SetReturnList(list);
-
-            BoardDTOService boardDTOService = new BoardDTOService(stub);
-
+            var mock = new Mock<IBoardDTORepository>();
+            mock.Setup(a => a.GetAllBoards()).Returns(new List<BoardDTO>());
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            
             //Act
             var result = boardDTOService.GetAllBoardsDTO();
 
@@ -35,18 +32,86 @@ namespace TrelloProject.BLL.Tests
         public void GetBoardDTO_ByDefault_ReturnsObjectOfTypeBoardDTO()
         {
             //Arrange
-            var stub = new BoardRepositoryStub();
-            BoardDTO board = new BoardDTO { BoardId = 1, Title = "TestBoard1", CurrentBackgroundColorId = 1 };
+            var mock = new Mock<IBoardDTORepository>();
 
-            stub.SetReturnObject(board);
+            string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
+            int id = Convert.ToInt32(idString);
 
-            BoardDTOService boardDTOService = new BoardDTOService(stub);
-
+            mock.Setup(a => a.GetBoard(id)).Returns(new BoardDTO());
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            
             //Act
-            var result = boardDTOService.GetBoardDTO(3);
+            var result = boardDTOService.GetBoardDTO(id);
 
             //Assert
             Assert.IsInstanceOf<BoardDTO>(result);
+        }
+
+        [Test]
+        public void CreateBoardDTO_ByDefault_ReturnsId()
+        {
+            // Arrange
+            var mock = new Mock<IBoardDTORepository>();
+            BoardDTO boardDTO = new BoardDTO();
+
+            string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
+            int id = Convert.ToInt32(idString);
+
+            mock.Setup(a => a.Create(boardDTO)).Returns(id);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel();
+
+            //Act
+            var result = boardDTOService.CreateBoardDTO(boardCreateViewModel);
+
+            //Assert
+            Assert.IsInstanceOf<int>(result);
+        }
+
+        [Test]
+        public void UpdateBoardDTO_ByDefault_ReturnsId()
+        {
+            // Arrange
+            var mock = new Mock<IBoardDTORepository>();
+            BoardDTO boardDTO = new BoardDTO();
+
+            string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
+            int id = Convert.ToInt32(idString);
+
+            mock.Setup(a => a.Update(boardDTO)).Returns(id);
+            mock.Setup(a => a.GetBoard(id)).Returns(new BoardDTO());
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            BoardUpdateViewModel boardUpdateViewModel = new BoardUpdateViewModel();
+            
+            //Act
+            var result = boardDTOService.UpdateBoardDTO(id, boardUpdateViewModel);
+
+            //Assert
+            Assert.IsInstanceOf<int>(result);
+        }
+
+        
+        [Test]
+        public void DeleteBoardDTO_BoardDoesNotExist_ThrowsNullReferenceException()
+        {
+            // Arrange
+            var mock = new Mock<IBoardDTORepository>();
+            BoardDTO boardDTO = new BoardDTO();
+
+            string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
+            int id = Convert.ToInt32(idString);
+
+            NullReferenceException ex = new NullReferenceException();
+            mock.Setup(a => a.Delete(id));
+            mock.Setup(a => a.GetBoard(id));
+            
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            
+            //Act
+           
+
+            //Assert
+            Assert.Throws<NullReferenceException>(() => boardDTOService.DeleteBoardDTO(id));
         }
     }
 }

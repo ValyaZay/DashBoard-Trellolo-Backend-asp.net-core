@@ -21,17 +21,7 @@ namespace TrelloProject.IntegrationTests
        protected IntegrationTestBaseClass()
         {
             appFactory = new WebApplicationFactory<Startup>();
-                //.WithWebHostBuilder(buidler =>
-                //{
-                //    buidler.ConfigureServices(services =>
-                //    {
-                //        services.RemoveDbContextDALExtension();
-                //        services.AddDbContextDALExtension(options =>
-                //        {
-                //            options.UseInMemoryDatabase("TestDb");
-                //        });
-                //    });
-                //});
+                
             TestClient = appFactory.CreateClient();
             
         }

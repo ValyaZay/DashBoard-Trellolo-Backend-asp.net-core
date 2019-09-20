@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
+using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Repositories;
 
 namespace TrelloProject.DAL.Extensions
@@ -10,5 +11,6 @@ namespace TrelloProject.DAL.Extensions
         {
             return services.AddScoped<IBoardDTORepository, SQLBoardRepository>();
         }
+
     }
 }

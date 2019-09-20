@@ -50,9 +50,7 @@ namespace TrelloProject.DAL.Repositories
             catch
             {
                 throw new NullReferenceException();
-            }
-                
-                
+            }    
         }
 
         public List<BoardDTO> GetAllBoards()

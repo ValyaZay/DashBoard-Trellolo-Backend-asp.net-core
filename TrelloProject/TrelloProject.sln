@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.IntegrationTe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.DTOsAndViewModels", "TrelloProject.DTOs\TrelloProject.DTOsAndViewModels.csproj", "{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrelloProject.DAL.NUnitTests", "TrelloProject.DAL.NUnitTests\TrelloProject.DAL.NUnitTests.csproj", "{7E08C0BC-5EF9-4505-8729-D9084C0710FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E08C0BC-5EF9-4505-8729-D9084C0710FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E08C0BC-5EF9-4505-8729-D9084C0710FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E08C0BC-5EF9-4505-8729-D9084C0710FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E08C0BC-5EF9-4505-8729-D9084C0710FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
