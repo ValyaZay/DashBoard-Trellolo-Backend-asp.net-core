@@ -11,6 +11,7 @@ namespace TrelloProject.BLL.Services
     public class BoardDTOService : IBoardDTOService
     {
         private readonly IBoardDTORepository _boardRepository;
+        public bool deleted = false;
         
         public BoardDTOService(IBoardDTORepository boardRepository)
         {
@@ -38,6 +39,7 @@ namespace TrelloProject.BLL.Services
             else
             {
                 _boardRepository.Delete(id);
+                deleted = true;
             }
         }
 

@@ -113,5 +113,27 @@ namespace TrelloProject.BLL.Tests
             //Assert
             Assert.Throws<NullReferenceException>(() => boardDTOService.DeleteBoardDTO(id));
         }
+
+        [Test]
+        public void DeleteBoardDTO_BoardExists_CallsDeleteMethodOfRepository()
+        {
+            //Arrange
+            var mock = new Mock<IBoardDTORepository>();
+            BoardDTO boardDTO = new BoardDTO();
+
+            string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
+            int id = Convert.ToInt32(idString);
+
+            mock.Setup(a => a.Delete(id));
+            mock.Setup(a => a.GetBoard(id)).Returns(new BoardDTO());
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+
+            //Act
+            boardDTOService.DeleteBoardDTO(id);
+           
+            //Assert
+            Assert.That(boardDTOService.deleted, Is.True);
+
+        }
     }
 }

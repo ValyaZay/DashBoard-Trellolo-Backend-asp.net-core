@@ -41,16 +41,16 @@ namespace TrelloProject.DAL.Repositories
 
         public BoardDTO GetBoard(int id)
         {
-            try
-            {
-                Board board = _trelloDbContext.Boards.Find(id);
-                BoardDTO boardDTO = MapToBoardDTO(board);
-                return boardDTO;
-            }
-            catch
+            Board board = _trelloDbContext.Boards.Find(id);
+            if(board == null)
             {
                 throw new NullReferenceException();
-            }    
+            }
+            else
+            {
+                BoardDTO boardDTO = MapToBoardDTO(board);
+                return boardDTO;
+            } 
         }
 
         public List<BoardDTO> GetAllBoards()
