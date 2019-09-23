@@ -11,6 +11,7 @@ namespace TrelloProject.BLL.Services
     public class BoardDTOService : IBoardDTOService
     {
         private readonly IBoardDTORepository _boardRepository;
+        public bool deleted = false;
         
         public BoardDTOService(IBoardDTORepository boardRepository)
         {
@@ -29,8 +30,17 @@ namespace TrelloProject.BLL.Services
 
         public void DeleteBoardDTO(int id)
         {
-            _boardRepository.GetBoard(id);
-            _boardRepository.Delete(id);
+            BoardDTO boardDTO = _boardRepository.GetBoard(id);
+            if(boardDTO == null)
+            {
+                throw new NullReferenceException("The item with ID=" + id + " does not exist");
+            }
+            
+            else
+            {
+                _boardRepository.Delete(id);
+                deleted = true;
+            }
         }
 
         public List<BoardDTO> GetAllBoardsDTO()

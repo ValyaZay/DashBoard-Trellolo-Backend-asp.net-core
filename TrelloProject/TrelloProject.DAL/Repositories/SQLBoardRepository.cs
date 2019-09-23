@@ -5,6 +5,7 @@ using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using System.Linq;
 
 namespace TrelloProject.DAL.Repositories
 {
@@ -14,8 +15,8 @@ namespace TrelloProject.DAL.Repositories
 
         private readonly TrelloDbContext _trelloDbContext;
         private MapperConfiguration config;
+        public bool deleted = false;
 
-        
 
         private BoardDTO MapToBoardDTO(Board board)
         {
@@ -40,18 +41,16 @@ namespace TrelloProject.DAL.Repositories
 
         public BoardDTO GetBoard(int id)
         {
-            try
-            {
-                Board board = _trelloDbContext.Boards.Find(id);
-                BoardDTO boardDTO = MapToBoardDTO(board);
-                return boardDTO;
-            }
-            catch
+            Board board = _trelloDbContext.Boards.Find(id);
+            if(board == null)
             {
                 throw new NullReferenceException();
             }
-                
-                
+            else
+            {
+                BoardDTO boardDTO = MapToBoardDTO(board);
+                return boardDTO;
+            } 
         }
 
         public List<BoardDTO> GetAllBoards()
@@ -92,6 +91,7 @@ namespace TrelloProject.DAL.Repositories
             Board boardToDelete = _trelloDbContext.Boards.Find(id);
             _trelloDbContext.Remove(boardToDelete);
             _trelloDbContext.SaveChanges();
+            deleted = true;
         }
     }
 }
