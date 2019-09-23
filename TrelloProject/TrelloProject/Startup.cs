@@ -41,6 +41,7 @@ namespace TrelloProject
             
             services.AddDALDependencyInjection();
 
+            //test
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
