@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28917.182
 MinimumVisualStudioVersion = 10.0.40219.1
+
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.WEB", "TrelloProject\TrelloProject.WEB.csproj", "{AAE673CD-B102-41F9-ACB4-C51DC84FD8CF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.BLL", "TrelloProject.BLL\TrelloProject.BLL.csproj", "{4F024FB7-5C54-4953-A175-8B56CD834514}"
@@ -14,6 +15,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.IntegrationTests", "TrelloProject.IntegrationTests\TrelloProject.IntegrationTests.csproj", "{E488A075-30DC-4031-B755-DE37D1E83002}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TrelloProject.DTOsAndViewModels", "TrelloProject.DTOs\TrelloProject.DTOsAndViewModels.csproj", "{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}"
+
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrelloProject.DAL.NUnitTests", "TrelloProject.DAL.NUnitTests\TrelloProject.DAL.NUnitTests.csproj", "{7E08C0BC-5EF9-4505-8729-D9084C0710FF}"
 EndProject
@@ -35,6 +37,7 @@ Global
 		{9352EE8E-05F9-4015-81D9-454619404780}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9352EE8E-05F9-4015-81D9-454619404780}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9352EE8E-05F9-4015-81D9-454619404780}.Release|Any CPU.Build.0 = Release|Any CPU
+
 		{705A01B3-C22D-44F6-8328-D19886647A9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{705A01B3-C22D-44F6-8328-D19886647A9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{705A01B3-C22D-44F6-8328-D19886647A9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -47,10 +50,12 @@ Global
 		{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C29904D-AB42-4877-B8A3-996DF2C7CC5C}.Release|Any CPU.Build.0 = Release|Any CPU
+
 		{7E08C0BC-5EF9-4505-8729-D9084C0710FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7E08C0BC-5EF9-4505-8729-D9084C0710FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E08C0BC-5EF9-4505-8729-D9084C0710FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E08C0BC-5EF9-4505-8729-D9084C0710FF}.Release|Any CPU.Build.0 = Release|Any CPU
+
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,8 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+
+<Project Sdk="Microsoft.NET.Sdk">
+
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
+
 
   <ItemGroup>
     <Compile Remove="Migrations\20190823143522_FixesWhiteSpaceAndCard.cs" />
@@ -50,6 +53,7 @@
     </Reference>
   </ItemGroup>
 
+
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>TrelloProject.DAL.NUnitTests</_Parameter1>
@@ -58,5 +62,6 @@
       <_Parameter1>TrelloProject.IntegrationTests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
+
 
 </Project>

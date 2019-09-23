@@ -1,4 +1,5 @@
 
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.BLL.Services;
 using TrelloProject.DAL.Extensions;
+
 
 
 namespace TrelloProject
@@ -26,6 +28,8 @@ namespace TrelloProject
         public void ConfigureServices(IServiceCollection services)
         {
 
+
+
             services.AddHealthChecks();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -35,13 +39,16 @@ namespace TrelloProject
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+
             services.AddDbContextDALExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
             
             services.AddScoped<IBoardDTOService, BoardDTOService>();
             
             services.AddDALDependencyInjection();
 
+
             //test
+
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -68,7 +75,7 @@ namespace TrelloProject
             app.UseCookiePolicy();
 
             app.UseMvc();
-           
+
         }
     }
 }
