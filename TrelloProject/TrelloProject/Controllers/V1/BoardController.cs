@@ -46,12 +46,16 @@ namespace TrelloProject.WEB.Controllers.V1
         [HttpGet(ApiRoutes.Board.GetById)]
         public IActionResult GetById([FromRoute] int BoardId)
         {
-            BoardDTO boardDTO = _boardDTOService.GetBoardDTO(BoardId);
-            if (boardDTO == null)
+            try
+            {
+                BoardDTO boardDTO = _boardDTOService.GetBoardDTO(BoardId);
+                return Ok(boardDTO);
+            }
+            catch(NullReferenceException)
             {
                 return NotFound("The board with ID = " + BoardId + " does not exist");
             }
-            return Ok(boardDTO);
+            
         }
 
         //POST: api/v1/Board

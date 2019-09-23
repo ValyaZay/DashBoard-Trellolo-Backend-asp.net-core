@@ -20,24 +20,24 @@ namespace TrelloProject.DAL.NUnitTests
                 .UseInMemoryDatabase(databaseName: "GetAllBoards_ByDefault_ReturnsListBoardDTO")
                 .Options;
 
-            using(var context = new TrelloDbContext(options))
+            using (var context = new TrelloDbContext(options))
             {
                 context.Boards.Add(new Board { BoardId = 1, Title = "Test", CurrentBackgroundColorId = 2 });
                 context.SaveChanges();
             }
 
             //Act
-            
+
             using (var context = new TrelloDbContext(options))
             {
                 var repository = new SQLBoardRepository(context);
                 var result = repository.GetAllBoards();
-            
+
                 //Assert
                 Assert.IsInstanceOf<List<BoardDTO>>(result);
             }
 
-            
+
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace TrelloProject.DAL.NUnitTests
             using (var context = new TrelloDbContext(options))
             {
                 var repository = new SQLBoardRepository(context);
-                
+
                 //Assert
                 Assert.Throws<NullReferenceException>(() => repository.GetBoard(id));
             }
@@ -99,9 +99,6 @@ namespace TrelloProject.DAL.NUnitTests
 
             Board newBoard = new Board() { Title = "Test", CurrentBackgroundColorId = 2 };
 
-            string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
-            int id = Convert.ToInt32(idString);
-
             //Act
             using (var context = new TrelloDbContext(options))
             {
@@ -112,6 +109,72 @@ namespace TrelloProject.DAL.NUnitTests
 
                 //Assert
                 Assert.IsInstanceOf<int>(result);
+            }
+        }
+
+        [Test]
+        public void Update_ByDefault_ReturnsBoardId()
+        {
+            //Arrange
+            var options = new DbContextOptionsBuilder<TrelloDbContext>()
+                .UseInMemoryDatabase(databaseName: "Update_ByDefault_ReturnsBoardId")
+                .Options;
+
+            Board newBoard = new Board() { Title = "Test", CurrentBackgroundColorId = 2 };
+            Board boardToUpdate = new Board() { BoardId = newBoard.BoardId, Title = "TestUpdated", CurrentBackgroundColorId = 2 };
+
+            using (var context = new TrelloDbContext(options))
+            {
+                var repository = new SQLBoardRepository(context);
+                context.Boards.Add(newBoard);
+                context.SaveChanges();
+
+            }
+
+            //Act
+            using (var context = new TrelloDbContext(options))
+            {
+                var repository = new SQLBoardRepository(context);
+                context.Boards.Update(boardToUpdate);
+                context.SaveChanges();
+                var result = boardToUpdate.BoardId;
+
+                //Assert
+                Assert.IsInstanceOf<int>(result);
+            }
+        }
+
+
+        [Test]
+        public void Delete_ByDefault_CallsRemoveMethod()
+        {
+            //Arrange
+            var options = new DbContextOptionsBuilder<TrelloDbContext>()
+                .UseInMemoryDatabase(databaseName: "Update_ByDefault_ReturnsBoardId")
+                .Options;
+
+            Board newBoard = new Board() { Title = "Test", CurrentBackgroundColorId = 2 };
+
+            string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
+            int id = Convert.ToInt32(idString);
+
+            using (var context = new TrelloDbContext(options))
+            {
+                var repository = new SQLBoardRepository(context);
+                context.Boards.Add(newBoard);
+                context.SaveChanges();
+
+            }
+
+            //Act
+            using (var context = new TrelloDbContext(options))
+            {
+                var repository = new SQLBoardRepository(context);
+                repository.Delete(newBoard.BoardId);
+                context.SaveChanges();
+               
+                //Assert
+                Assert.That(repository.deleted, Is.True);
             }
         }
     }

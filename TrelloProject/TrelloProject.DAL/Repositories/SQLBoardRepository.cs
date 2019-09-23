@@ -15,8 +15,8 @@ namespace TrelloProject.DAL.Repositories
 
         private readonly TrelloDbContext _trelloDbContext;
         private MapperConfiguration config;
+        public bool deleted = false;
 
-        
 
         private BoardDTO MapToBoardDTO(Board board)
         {
@@ -91,6 +91,7 @@ namespace TrelloProject.DAL.Repositories
             Board boardToDelete = _trelloDbContext.Boards.Find(id);
             _trelloDbContext.Remove(boardToDelete);
             _trelloDbContext.SaveChanges();
+            deleted = true;
         }
     }
 }

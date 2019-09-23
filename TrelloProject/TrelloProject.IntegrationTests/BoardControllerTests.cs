@@ -1,11 +1,19 @@
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using TrelloProject.DAL.EF;
+using TrelloProject.DAL.Entities;
 using TrelloProject.DTOsAndViewModels.DTOs;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.WEB.Contracts.V1;
+using TrelloProject.WEB.Controllers.V1;
 using Xunit;
 
 namespace TrelloProject.IntegrationTests
@@ -23,6 +31,36 @@ namespace TrelloProject.IntegrationTests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var returnedType = 
+            (await response.Content.ReadAsAsync<List<BoardDTO>>()).Should().BeOfType<List<BoardDTO>>();
+        }
+
+        private HttpClient TestClientInMemory;
+        [Fact]
+        public async Task Get_IfTheDBIsEmpty_ReturnsOKResponseWithMessage()
+        {
+            // Arrange
+            var appFactory = new WebApplicationFactory<Startup>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.ConfigureServices(services =>
+                    {
+                        services.RemoveAll(typeof(TrelloDbContext));
+                        services.AddDbContext<TrelloDbContext>(options =>
+                        {
+                            options.UseInMemoryDatabase("Get_IfTheDBIsEmpty_ReturnsOKResponseWithMessage");
+                        });
+                    });
+                });
+            TestClientInMemory = appFactory.CreateClient();
+
+            // Act
+           
+            var response = await TestClientInMemory.GetAsync(ApiRoutes.Board.GetAll);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("There are no boards created.");
         }
 
         [Fact]
@@ -91,7 +129,7 @@ namespace TrelloProject.IntegrationTests
         }
 
         [Fact]
-        public async Task GetById_IfBoardExistsInTheDatabase_ReturnsBoard()
+        public async Task GetById_IfBoardExistsInTheDatabase_ReturnsOkAndBoard()
         {
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
@@ -107,6 +145,21 @@ namespace TrelloProject.IntegrationTests
             returnedBoard.BoardId.Should().Be(createdBoard.BoardId);
             returnedBoard.Title.Should().Be(title);
             returnedBoard.CurrentBackgroundColorId.Should().Be((int)BgColorEnum.Green);
+        }
+
+        [Fact]
+        public async Task GetById_IfBoardDoesNOTExistInTheDatabase_ReturnsNotFoundAndMessage()
+        {
+            //Arrange
+            string dummyIdString  = DateTime.Now.Ticks.ToString().Substring(0, 9);
+            //int dummyId = Convert.ToInt32(dummyIdString);
+
+            //Act
+            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", dummyIdString));
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The board with ID = " + dummyIdString + " does not exist");
         }
 
         [Fact]
@@ -208,7 +261,7 @@ namespace TrelloProject.IntegrationTests
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
+            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The item with ID=" + idDoesNotExist + " does not exist");
         }
     }
 }
