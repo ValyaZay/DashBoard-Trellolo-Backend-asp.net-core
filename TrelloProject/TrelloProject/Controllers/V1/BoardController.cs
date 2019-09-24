@@ -72,7 +72,10 @@ namespace TrelloProject.WEB.Controllers.V1
                     return Created(locationUri, new BoardDTO { BoardId = id, Title = boardCreateViewModel.Title, CurrentBackgroundColorId = (int)boardCreateViewModel.CurrentBackgroundColorId });
                     //return CreatedAtAction(nameof(GetById), new { id }, boardCreateViewModel);
                 }
-
+                catch (NullReferenceException)
+                {
+                    return NotFound("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
+                }
                 catch (Exception)
                 {
                     return BadRequest(error: "Board Title " + boardCreateViewModel.Title + " already exists");

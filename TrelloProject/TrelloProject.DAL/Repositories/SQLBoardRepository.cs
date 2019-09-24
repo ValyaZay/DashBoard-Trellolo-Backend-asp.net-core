@@ -69,6 +69,7 @@ namespace TrelloProject.DAL.Repositories
 
         public int Create(BoardDTO newBoardDTO)
         {
+            
             Board newBoard = MapToBoard(newBoardDTO);
             _trelloDbContext.Boards.Add(newBoard);
             _trelloDbContext.SaveChanges();

@@ -30,8 +30,9 @@ namespace TrelloProject.BLL.Tests
         {
             //Arrange
             var mock = new Mock<IBoardDTORepository>();
+            var mockBg = new Mock<IBackgroundColorDTORepository>();
             mock.Setup(a => a.GetAllBoards()).Returns(list);
-            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
 
             //Act
             var count = list.Count;
@@ -45,8 +46,9 @@ namespace TrelloProject.BLL.Tests
         {
             //Arrange
             var mock = new Mock<IBoardDTORepository>();
+            var mockBg = new Mock<IBackgroundColorDTORepository>();
             mock.Setup(a => a.GetAllBoards()).Returns(new List<BoardDTO>());
-            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
             
             //Act
             var result = boardDTOService.GetAllBoardsDTO();
@@ -63,12 +65,12 @@ namespace TrelloProject.BLL.Tests
         {
             //Arrange
             var mock = new Mock<IBoardDTORepository>();
-
+            var mockBg = new Mock<IBackgroundColorDTORepository>();
             string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
             int id = Convert.ToInt32(idString);
 
             mock.Setup(a => a.GetBoard(id)).Returns(new BoardDTO());
-            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
             
             //Act
             var result = boardDTOService.GetBoardDTO(id);
@@ -83,14 +85,16 @@ namespace TrelloProject.BLL.Tests
         {
             // Arrange
             var mock = new Mock<IBoardDTORepository>();
+            var mockBg = new Mock<IBackgroundColorDTORepository>();
             BoardDTO boardDTO = new BoardDTO();
-
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel();
             string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
             int id = Convert.ToInt32(idString);
 
             mock.Setup(a => a.Create(boardDTO)).Returns(id);
-            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
-            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel();
+            mockBg.Setup(a => a.GetBackgroundById(boardCreateViewModel.CurrentBackgroundColorId)).Returns(new BackgroundColorDTO());
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
+            
 
             //Act
             var result = boardDTOService.CreateBoardDTO(boardCreateViewModel);
@@ -106,6 +110,7 @@ namespace TrelloProject.BLL.Tests
         {
             // Arrange
             var mock = new Mock<IBoardDTORepository>();
+            var mockBg = new Mock<IBackgroundColorDTORepository>();
             BoardDTO boardDTO = new BoardDTO();
 
             string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
@@ -113,7 +118,7 @@ namespace TrelloProject.BLL.Tests
 
             mock.Setup(a => a.Update(boardDTO)).Returns(id);
             mock.Setup(a => a.GetBoard(id)).Returns(new BoardDTO());
-            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
             BoardUpdateViewModel boardUpdateViewModel = new BoardUpdateViewModel();
             
             //Act
@@ -130,6 +135,7 @@ namespace TrelloProject.BLL.Tests
         {
             // Arrange
             var mock = new Mock<IBoardDTORepository>();
+            var mockBg = new Mock<IBackgroundColorDTORepository>();
             BoardDTO boardDTO = new BoardDTO();
 
             string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
@@ -139,7 +145,7 @@ namespace TrelloProject.BLL.Tests
             mock.Setup(a => a.Delete(id));
             mock.Setup(a => a.GetBoard(id));
             
-            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
             
             //Act
            
@@ -153,6 +159,7 @@ namespace TrelloProject.BLL.Tests
         {
             //Arrange
             var mock = new Mock<IBoardDTORepository>();
+            var mockBg = new Mock<IBackgroundColorDTORepository>();
             BoardDTO boardDTO = new BoardDTO();
 
             string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
@@ -160,7 +167,7 @@ namespace TrelloProject.BLL.Tests
 
             mock.Setup(a => a.Delete(id));
             mock.Setup(a => a.GetBoard(id)).Returns(new BoardDTO());
-            BoardDTOService boardDTOService = new BoardDTOService(mock.Object);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
 
             //Act
             boardDTOService.DeleteBoardDTO(id);

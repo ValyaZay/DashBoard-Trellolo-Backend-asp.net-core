@@ -71,7 +71,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 1 };
             
             //Act
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
@@ -100,7 +100,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardWithATitle = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardWithATitle = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 2 };
             await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardWithATitle);
                         
             BoardCreateViewModel boardWithTheSameTitle = new BoardCreateViewModel { Title = title };
@@ -119,7 +119,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 2 };
 
             //Act
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
@@ -141,7 +141,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             string title = "IntegrTest" + titleGuid;
-            var createdBoard = await CreateBoardAsync( new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green });
+            var createdBoard = await CreateBoardAsync( new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 });
             
             //Act
             var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", createdBoard.BoardId.ToString()));
@@ -175,7 +175,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 4 };
             var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
 
             string boardLocationWithId = responsePost.Headers.Location.ToString();
@@ -225,7 +225,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
             var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
 
             string boardLocationWithId = responsePost.Headers.Location.ToString();
@@ -250,7 +250,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
             var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
 
             string boardLocationWithId = responsePost.Headers.Location.ToString();

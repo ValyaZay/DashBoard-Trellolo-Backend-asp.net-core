@@ -11,7 +11,7 @@ namespace TrelloProject.DTOsAndViewModels.ViewModels
         [Required]
         [MaxLength(50, ErrorMessage = "Title cannot exceed 50 characters")]
         public string Title { get; set; }
-        public BgColorEnum CurrentBackgroundColorId { get; set; }
+        public int CurrentBackgroundColorId { get; set; }
 
         
     }
