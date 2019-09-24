@@ -13,7 +13,7 @@ namespace TrelloProject.DAL.NUnitTests
     class SQLBoardRepositoryTests
     {
         [Test]
-        public void GetAllBoards_ByDefault_ReturnsListBoardDTO()
+        public void GetAllBoards_IfRepositoryIsNOTEmpty_ReturnsListBoardDTOAndCorrectCountOfCollection()
         {
             //Arrange
             var options = new DbContextOptionsBuilder<TrelloDbContext>()
@@ -27,17 +27,38 @@ namespace TrelloProject.DAL.NUnitTests
             }
 
             //Act
-
             using (var context = new TrelloDbContext(options))
             {
                 var repository = new SQLBoardRepository(context);
                 var result = repository.GetAllBoards();
+                var countOfBoardsInRepository = repository.GetAllBoards().Count;
 
                 //Assert
                 Assert.IsInstanceOf<List<BoardDTO>>(result);
+                Assert.That(result, Is.Not.Null.Or.Empty);
+                Assert.That(countOfBoardsInRepository, Is.EqualTo(1));
             }
+        }
 
+        public void GetAllBoards_IfRepositoryIsEmpty_ReturnsZeroCount()
+        {
+            //Arrange
+            var options = new DbContextOptionsBuilder<TrelloDbContext>()
+                .UseInMemoryDatabase(databaseName: "GetAllBoards_ByDefault_ReturnsListBoardDTO")
+                .Options;
 
+            //Act
+            using (var context = new TrelloDbContext(options))
+            {
+                var repository = new SQLBoardRepository(context);
+                var result = repository.GetAllBoards();
+                var countOfBoardsInRepository = repository.GetAllBoards().Count;
+
+                //Assert
+                Assert.IsInstanceOf<List<BoardDTO>>(result);
+                Assert.That(result, Is.Null.Or.Empty);
+                Assert.That(countOfBoardsInRepository, Is.EqualTo(0));
+            }
         }
 
         [Test]
@@ -57,7 +78,6 @@ namespace TrelloProject.DAL.NUnitTests
             }
 
             //Act
-
             using (var context = new TrelloDbContext(options))
             {
                 var repository = new SQLBoardRepository(context);
@@ -65,6 +85,10 @@ namespace TrelloProject.DAL.NUnitTests
 
                 //Assert
                 Assert.IsInstanceOf<BoardDTO>(result);
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.BoardId, Is.EqualTo(board.BoardId));
+                Assert.That(result.Title, Is.EqualTo(board.Title));
+                Assert.That(result.CurrentBackgroundColorId, Is.EqualTo(board.CurrentBackgroundColorId));
             }
         }
 
@@ -105,10 +129,16 @@ namespace TrelloProject.DAL.NUnitTests
                 var repository = new SQLBoardRepository(context);
                 context.Boards.Add(newBoard);
                 context.SaveChanges();
-                var result = newBoard.BoardId;
+
+                var createdBoardId = newBoard.BoardId;
+                var createdBoard = repository.GetBoard(createdBoardId);
 
                 //Assert
-                Assert.IsInstanceOf<int>(result);
+                Assert.IsInstanceOf<int>(createdBoardId);
+                Assert.That(createdBoardId, Is.Not.Null);
+                Assert.That(createdBoard.BoardId, Is.EqualTo(newBoard.BoardId));
+                Assert.That(createdBoard.Title, Is.EqualTo(newBoard.Title));
+                Assert.That(createdBoard.CurrentBackgroundColorId, Is.EqualTo(newBoard.CurrentBackgroundColorId));
             }
         }
 
@@ -137,10 +167,15 @@ namespace TrelloProject.DAL.NUnitTests
                 var repository = new SQLBoardRepository(context);
                 context.Boards.Update(boardToUpdate);
                 context.SaveChanges();
-                var result = boardToUpdate.BoardId;
+                var updatedBoardId = boardToUpdate.BoardId;
+                var updatedBoard = repository.GetBoard(updatedBoardId);
 
                 //Assert
-                Assert.IsInstanceOf<int>(result);
+                Assert.IsInstanceOf<int>(updatedBoardId);
+                Assert.That(updatedBoardId, Is.Not.Null);
+                Assert.That(updatedBoard.BoardId, Is.EqualTo(boardToUpdate.BoardId));
+                Assert.That(updatedBoard.Title, Is.EqualTo(boardToUpdate.Title));
+                Assert.That(updatedBoard.CurrentBackgroundColorId, Is.EqualTo(boardToUpdate.CurrentBackgroundColorId));
             }
         }
 
