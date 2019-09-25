@@ -81,20 +81,24 @@ namespace TrelloProject.BLL.Tests
         }
 
         [Test]
-        public void CreateBoardDTO_ByDefault_ReturnsId()
+        public void CreateBoardDTO_BgColorExistsAndTitleIsUnique_ReturnsId()
         {
             // Arrange
             var mock = new Mock<IBoardDTORepository>();
             var mockBg = new Mock<IBackgroundColorDTORepository>();
             BoardDTO boardDTO = new BoardDTO();
-            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel();
-            string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
-            int id = Convert.ToInt32(idString);
-
-            mock.Setup(a => a.Create(boardDTO)).Returns(id);
-            mockBg.Setup(a => a.GetBackgroundById(boardCreateViewModel.CurrentBackgroundColorId)).Returns(new BackgroundColorDTO());
-            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel() { CurrentBackgroundColorId = 1 };
             
+
+            mock
+                .Setup(a => a.Create(boardDTO))
+                .Returns(It.IsAny<int>);
+
+            mockBg
+                .Setup(a => a.DoesBackgroundColorExist(boardCreateViewModel.CurrentBackgroundColorId))
+                .Returns(true);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
+
 
             //Act
             var result = boardDTOService.CreateBoardDTO(boardCreateViewModel);
@@ -102,6 +106,32 @@ namespace TrelloProject.BLL.Tests
             //Assert
             Assert.IsInstanceOf<int>(result);
             Assert.That(result, Is.Not.Null);
+
+        }
+
+        [Test]
+        public void CreateBoardDTO_BgColorDoesNOTExist_ThrowsNullReferenceException()
+        {
+            // Arrange
+            var mock = new Mock<IBoardDTORepository>();
+            var mockBg = new Mock<IBackgroundColorDTORepository>();
+            BoardDTO boardDTO = new BoardDTO();
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel();
+            
+            mock
+                .Setup(a => a.Create(boardDTO))
+                .Returns(It.IsAny<int>);
+
+            mockBg
+                .Setup(a => a.DoesBackgroundColorExist(boardCreateViewModel.CurrentBackgroundColorId))
+                .Returns(true);
+            BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
+
+
+            //Act
+
+            //Assert
+            Assert.Throws<NullReferenceException>(() => boardDTOService.CreateBoardDTO(boardCreateViewModel));
 
         }
 

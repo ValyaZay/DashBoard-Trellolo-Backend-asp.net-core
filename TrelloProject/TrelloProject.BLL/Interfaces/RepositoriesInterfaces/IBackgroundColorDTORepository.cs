@@ -7,6 +7,6 @@ namespace TrelloProject.BLL.Interfaces.RepositoriesInterfaces
 {
     public interface IBackgroundColorDTORepository
     {
-        BackgroundColorDTO GetBackgroundById(int id);
+        bool DoesBackgroundColorExist(int id);
     }
 }

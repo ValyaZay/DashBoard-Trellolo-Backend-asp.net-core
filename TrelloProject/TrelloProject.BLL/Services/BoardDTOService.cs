@@ -27,14 +27,14 @@ namespace TrelloProject.BLL.Services
             newBoardDTO.Title = boardCreateViewModel.Title;
             int bgColorId = (boardCreateViewModel.CurrentBackgroundColorId != 0) ? boardCreateViewModel.CurrentBackgroundColorId : 1;
             //check whether bg color exists
-            BackgroundColorDTO backgroundColorDTO = _backgroundColorDTORepository.GetBackgroundById(bgColorId);
-            if(backgroundColorDTO == null)
+            bool bgExists = _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
+            if(bgExists == false)
             {
                 throw new NullReferenceException("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
             }
             else
             {
-                newBoardDTO.CurrentBackgroundColorId = (int)boardCreateViewModel.CurrentBackgroundColorId;
+                newBoardDTO.CurrentBackgroundColorId = bgColorId;
             }
 
             int id = _boardRepository.Create(newBoardDTO);

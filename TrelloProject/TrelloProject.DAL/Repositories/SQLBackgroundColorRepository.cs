@@ -36,7 +36,8 @@ namespace TrelloProject.DAL.Repositories
             return backgroundColor;
         }
 
-        public BackgroundColorDTO GetBackgroundById(int id)
+        public bool bgExists = false;
+        public bool DoesBackgroundColorExist(int id)
         {
             BackgroundColor backgroundColor = _trelloDbContext.BackgroundColors.Find(id);
             if(backgroundColor == null)
@@ -45,8 +46,8 @@ namespace TrelloProject.DAL.Repositories
             }
             else
             {
-                BackgroundColorDTO backgroundColorDTO = MapToBgColorDTO(backgroundColor);
-                return backgroundColorDTO;
+                bgExists = true;
+                return bgExists;
             }
         }
     }
