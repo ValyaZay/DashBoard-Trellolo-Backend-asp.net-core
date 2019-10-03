@@ -33,15 +33,15 @@ namespace TrelloProject.WEB.Controllers.V1
         {
             try
             {
-                var boardsDTO = _boardDTOService.GetAllBoards();
-                int boardsCount = boardsDTO.Count();
+                var boardBgViewModels = _boardDTOService.GetAllBoards();
+                int boardsCount = boardBgViewModels.Count();
                 if(boardsCount == 0 )
                 {
                     return Ok("There are no boards created.");
                 }
                 else
                 {
-                    return Ok(boardsDTO);
+                    return Ok(boardBgViewModels);
 
                 }
             }
@@ -62,8 +62,8 @@ namespace TrelloProject.WEB.Controllers.V1
         {
             try
             {
-                BoardViewModel boardViewModel = _boardDTOService.GetBoard(id);
-                return Ok(boardViewModel);
+                BoardBgViewModel boardBgViewModel = _boardDTOService.GetBoard(id);
+                return Ok(boardBgViewModel);
             }
             catch(Exception ex) //custom exception should be caught 
             {
