@@ -23,54 +23,59 @@ namespace TrelloProject.BLL.Services
 
         public int CreateBoardDTO(BoardCreateViewModel boardCreateViewModel)
         {
-            BoardDTO newBoardDTO = new BoardDTO();
-            newBoardDTO.Title = boardCreateViewModel.Title;
-            int bgColorId = (boardCreateViewModel.CurrentBackgroundColorId != 0) ? boardCreateViewModel.CurrentBackgroundColorId : 1;
-            //check whether bg color exists
-            bool bgExists = _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
-            if(bgExists == false)
-            {
-                throw new NullReferenceException("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
-            }
-            else
-            {
-                newBoardDTO.CurrentBackgroundColorId = bgColorId;
-            }
+            //BoardDTO newBoardDTO = new BoardDTO();
+            //newBoardDTO.Title = boardCreateViewModel.Title;
+            //int bgColorId = (boardCreateViewModel.CurrentBackgroundColorId != 0) ? boardCreateViewModel.CurrentBackgroundColorId : 1;
+            ////check whether bg color exists
+            //bool bgExists = _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
+            //if(bgExists == false)
+            //{
+            //    throw new NullReferenceException("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
+            //}
+            //else
+            //{
+            //    newBoardDTO.CurrentBackgroundColorId = bgColorId;
+            //}
 
-            int id = _boardRepository.Create(newBoardDTO);
-            return id;
+            //int id = _boardRepository.Create(newBoardDTO);
+            //return id;
+            return 3;
         }
 
         public void DeleteBoardDTO(int id)
         {
-            BoardDTO boardDTO = _boardRepository.GetBoard(id);
-            if(boardDTO == null)
-            {
-                throw new NullReferenceException("The item with ID=" + id + " does not exist");
-            }
+            //BoardDTO boardDTO = _boardRepository.GetBoard(id);
+            //if(boardDTO == null)
+            //{
+            //    throw new NullReferenceException("The item with ID=" + id + " does not exist");
+            //}
             
-            else
-            {
-                _boardRepository.Delete(id);
-                deleted = true;
-            }
+            //else
+            //{
+            //    _boardRepository.Delete(id);
+            //    deleted = true;
+            //}
         }
 
-        public List<BoardViewModel> GetAllBoards()
+        public List<BoardBgViewModel> GetAllBoards()
         {
             try
             {
-                var boardsDTO = _boardRepository.GetAllBoards();
+                var boardsBgDTO = _boardRepository.GetAllBoards();
 
-                List<BoardViewModel> boardViewModels = new List<BoardViewModel>();
-                BoardViewModel boardViewModel = new BoardViewModel();
-                foreach(var boardDTO in boardsDTO)
+                List<BoardBgViewModel> boardBgViewModels = new List<BoardBgViewModel>();
+                
+                foreach (var boardBgDTO in boardsBgDTO)
                 {
-                    boardViewModel.Title = boardDTO.Title;
-                    boardViewModel.CurrentBackgroundColorId = boardDTO.CurrentBackgroundColorId;
-                    boardViewModels.Add(boardViewModel);
+                    BoardBgViewModel boardBgViewModel = new BoardBgViewModel();
+                    boardBgViewModel.Id = boardBgDTO.Id;
+                    boardBgViewModel.Title = boardBgDTO.Title;
+                    boardBgViewModel.BgColorName = boardBgDTO.BgColorName;
+                    boardBgViewModel.BgColorHex = boardBgDTO.BgColorHex;
+
+                    boardBgViewModels.Add(boardBgViewModel);
                 }
-                return boardViewModels;
+                return boardBgViewModels;
             }
             catch(Exception innerEx)
             {
@@ -79,15 +84,21 @@ namespace TrelloProject.BLL.Services
              
         }
 
-        public BoardViewModel GetBoard(int id)
+        public BoardBgViewModel GetBoard(int id)
         {
-            BoardViewModel boardViewModel = new BoardViewModel();
+            
             try
             {
-                BoardDTO boardDTO = _boardRepository.GetBoard(id);
-                boardViewModel.Title = boardDTO.Title;
-                boardViewModel.CurrentBackgroundColorId = boardDTO.CurrentBackgroundColorId;
-                return boardViewModel;
+                BoardBgDTO boardBgDTO = _boardRepository.GetBoard(id);
+
+                BoardBgViewModel boardBgViewModel = new BoardBgViewModel();
+
+                boardBgViewModel.Id = boardBgDTO.Id;
+                boardBgViewModel.Title = boardBgDTO.Title;
+                boardBgViewModel.BgColorName = boardBgDTO.BgColorName;
+                boardBgViewModel.BgColorHex = boardBgDTO.BgColorHex;
+
+                return boardBgViewModel;
             }
             catch(Exception innerEx)
             {
@@ -99,12 +110,12 @@ namespace TrelloProject.BLL.Services
 
         public int UpdateBoardDTO(int id, BoardUpdateViewModel boardUpdateViewModel)
         {
-            BoardDTO boardToUpdate = _boardRepository.GetBoard(id);
-            boardToUpdate.Title = boardUpdateViewModel.Title;
-            boardToUpdate.CurrentBackgroundColorId = (int)boardUpdateViewModel.CurrentBackgroundColorId;
-            _boardRepository.Update(boardToUpdate);
-            return boardToUpdate.BoardId;  
-            
+            //BoardBgDTO boardToUpdate = _boardRepository.GetBoard(id);
+            //boardToUpdate.Title = boardUpdateViewModel.Title;
+            //boardToUpdate.CurrentBackgroundColorId = (int)boardUpdateViewModel.CurrentBackgroundColorId;
+            //_boardRepository.Update(boardToUpdate);
+            //return boardToUpdate.BoardId;
+            return 2;
         }
     }
 }

@@ -40,33 +40,43 @@ namespace TrelloProject.DAL.Repositories
             _trelloDbContext = trelloDbContext;
         }
 
-        public BoardDTO GetBoard(int id)
+        private BackgroundColor FindBgColor(Board board)
         {
-            //Board board = _trelloDbContext.Boards.Find(id); //should be caught System.InvalidOperationException
-            Board board = _trelloDbContext.Boards //should be caught System.InvalidOperationException
-                                          .Where(b => b.BoardId == id)
-                                          .Include(b => b.BackgroundColor)
-                                          .SingleOrDefault();
-
-            //BoardDTO boardDTO = MapToBoardDTO(board);
-            BoardDTO boardDTO = new BoardDTO();
-            boardDTO.Title = board.Title;
-            //boardDTO.CurrentBackgroundColorId = board.BackgroundColor.//decide what should be included into board DTO
-            return boardDTO;
+            return _trelloDbContext.BackgroundColors.Find(board.CurrentBackgroundColorId);
         }
 
-        public List<BoardDTO> GetAllBoards()
+        public BoardBgDTO GetBoard(int id)
+        {
+            Board board = _trelloDbContext.Boards.Find(id); //should be caught System.InvalidOperationException
+            BackgroundColor bgColor = FindBgColor(board);
+            BoardBgDTO boardBgDTO = new BoardBgDTO();
+
+            boardBgDTO.Id = board.BoardId;
+            boardBgDTO.Title = board.Title;
+            boardBgDTO.BgColorName = bgColor.ColorName;
+            boardBgDTO.BgColorHex = bgColor.ColorHex;
+
+            return boardBgDTO;
+        }
+
+        public List<BoardBgDTO> GetAllBoards()
         {
             IEnumerable<Board> boards = _trelloDbContext.Boards.ToList();
 
-            List<BoardDTO> boardsDTO = new List<BoardDTO>();
+            List<BoardBgDTO> boardsBgDTO = new List<BoardBgDTO>();
+            
 
             foreach (Board board in boards)
             {
-                BoardDTO boardDTO = MapToBoardDTO(board);
-                boardsDTO.Add(boardDTO);
+                BoardBgDTO boardBgDTO = new BoardBgDTO();
+                BackgroundColor bgColor = FindBgColor(board);
+                boardBgDTO.Id = board.BoardId;
+                boardBgDTO.Title = board.Title;
+                boardBgDTO.BgColorName = bgColor.ColorName;
+                boardBgDTO.BgColorHex = bgColor.ColorHex;
+                boardsBgDTO.Add(boardBgDTO);
             }
-            return boardsDTO;
+            return boardsBgDTO;
         }
 
         public int Create(BoardDTO newBoardDTO)

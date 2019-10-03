@@ -6,8 +6,8 @@ namespace TrelloProject.BLL.Interfaces.RepositoriesInterfaces
     public interface IBoardDTORepository
     {
        
-        BoardDTO GetBoard(int Id);
-        List<BoardDTO> GetAllBoards();
+        BoardBgDTO GetBoard(int Id);
+        List<BoardBgDTO> GetAllBoards();
         int Create(BoardDTO newBoardDTO);
         int Update(BoardDTO updatedBoardDTO);
         void Delete(int id);
