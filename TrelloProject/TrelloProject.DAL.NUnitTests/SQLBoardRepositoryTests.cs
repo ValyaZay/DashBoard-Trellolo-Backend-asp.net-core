@@ -40,6 +40,7 @@ namespace TrelloProject.DAL.NUnitTests
             }
         }
 
+        [Test]
         public void GetAllBoards_IfRepositoryIsEmpty_ReturnsZeroCount()
         {
             //Arrange

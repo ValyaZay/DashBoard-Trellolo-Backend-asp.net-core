@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrelloProject.DAL.EF;
 
 namespace TrelloProject.DAL.Migrations
 {
     [DbContext(typeof(TrelloDbContext))]
-    partial class TrelloDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191002120525_BgColorNameAdded")]
+    partial class BgColorNameAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -8,12 +8,12 @@ using TrelloProject.DTOsAndViewModels.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using TrelloProject.WEB.Contracts.V1;
+using TrelloProject.DTOsAndViewModels.OtherModels;
 
 namespace TrelloProject.WEB.Controllers.V1
 {
     [Produces("application/json")]
-    //[Route("api/[controller]")]
-    //[ApiController]
+    
     public class BoardController : Controller
     {
         private readonly IBoardDTOService _boardDTOService;
@@ -25,35 +25,49 @@ namespace TrelloProject.WEB.Controllers.V1
 
 
         // GET: api/v1/Board
+        
         [HttpGet(ApiRoutes.Board.GetAll)]
+        [ProducesResponseType(typeof(List<BoardViewModel>), 200)]
+        [ProducesResponseType(400)]
         public IActionResult Get()
         {
-            List<BoardDTO> boardsDTO = _boardDTOService.GetAllBoardsDTO();
-            int boardsCount = boardsDTO.Count();
-            if(boardsCount == 0 )
+            try
             {
-                return Ok("There are no boards created.");
-            }
-            else
-            {
-                return Ok(boardsDTO);
+                var boardsDTO = _boardDTOService.GetAllBoards();
+                int boardsCount = boardsDTO.Count();
+                if(boardsCount == 0 )
+                {
+                    return Ok("There are no boards created.");
+                }
+                else
+                {
+                    return Ok(boardsDTO);
 
+                }
             }
+            catch (Exception ex) //custom exception should be caught
+            {
+                return BadRequest(ex.Message);
+            }
+            
+            
             
         }
 
         //GET: api/v1/Board/5
         [HttpGet(ApiRoutes.Board.GetById)]
-        public IActionResult GetById([FromRoute] int BoardId)
+        [ProducesResponseType(typeof(BoardViewModel), 200)]
+        [ProducesResponseType(404)]
+        public IActionResult GetById(int id)
         {
             try
             {
-                BoardDTO boardDTO = _boardDTOService.GetBoardDTO(BoardId);
-                return Ok(boardDTO);
+                BoardViewModel boardViewModel = _boardDTOService.GetBoard(id);
+                return Ok(boardViewModel);
             }
-            catch(NullReferenceException)
+            catch(Exception ex) //custom exception should be caught 
             {
-                return NotFound("The board with ID = " + BoardId + " does not exist");
+                return NotFound(ex.Message);
             }
             
         }

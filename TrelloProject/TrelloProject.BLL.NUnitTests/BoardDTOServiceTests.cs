@@ -42,7 +42,7 @@ namespace TrelloProject.BLL.Tests
         }
             
         [Test]
-        public void GetAllBoardsDTO_ByDefault_ReturnsListOfTypeBoardDTO()
+        public void GetAllBoardsDTO_ByDefault_ReturnsListOfTypeBoardViewModel()
         {
             //Arrange
             var mock = new Mock<IBoardDTORepository>();
@@ -51,11 +51,11 @@ namespace TrelloProject.BLL.Tests
             BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
             
             //Act
-            var result = boardDTOService.GetAllBoardsDTO();
+            var result = boardDTOService.GetAllBoards();
             
 
             //Assert
-            Assert.IsInstanceOf<List<BoardDTO>>(result);
+            Assert.IsInstanceOf<List<BoardViewModel>>(result);
             Assert.That(result, Is.Not.Null);
             
         }
@@ -73,7 +73,7 @@ namespace TrelloProject.BLL.Tests
             BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
             
             //Act
-            var result = boardDTOService.GetBoardDTO(id);
+            var result = boardDTOService.GetBoard(id);
 
             //Assert
             Assert.IsInstanceOf<BoardDTO>(result);
