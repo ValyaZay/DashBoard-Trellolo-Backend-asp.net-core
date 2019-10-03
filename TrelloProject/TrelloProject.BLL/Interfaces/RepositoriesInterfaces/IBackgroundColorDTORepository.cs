@@ -8,5 +8,6 @@ namespace TrelloProject.BLL.Interfaces.RepositoriesInterfaces
     public interface IBackgroundColorDTORepository
     {
         bool DoesBackgroundColorExist(int id);
+        List<BackgroundColorDTO> GetAllBgColors();
     }
 }

@@ -16,7 +16,7 @@ namespace TrelloProject.WEB.Contracts.V1
         {
             public const string GetAll = Base + "/board";
 
-            public const string GetById = Base + "/board/{BoardId}";
+            public const string GetById = Base + "/board/{id}";
 
             public const string Update = Base + "/board/{BoardId}";
 
@@ -24,6 +24,11 @@ namespace TrelloProject.WEB.Contracts.V1
 
             public const string Create = Base + "/board";
 
+        }
+
+        public static class BackgroundColor
+        {
+            public const string GetAll = Base + "/bgColors";
         }
     }
 }

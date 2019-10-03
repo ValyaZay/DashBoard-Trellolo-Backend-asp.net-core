@@ -6,6 +6,7 @@ using TrelloProject.DAL.Entities;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
 using System.Linq;
+using System.Data.Entity;
 
 namespace TrelloProject.DAL.Repositories
 {
@@ -41,21 +42,22 @@ namespace TrelloProject.DAL.Repositories
 
         public BoardDTO GetBoard(int id)
         {
-            Board board = _trelloDbContext.Boards.Find(id);
-            if(board == null)
-            {
-                throw new NullReferenceException();
-            }
-            else
-            {
-                BoardDTO boardDTO = MapToBoardDTO(board);
-                return boardDTO;
-            } 
+            //Board board = _trelloDbContext.Boards.Find(id); //should be caught System.InvalidOperationException
+            Board board = _trelloDbContext.Boards //should be caught System.InvalidOperationException
+                                          .Where(b => b.BoardId == id)
+                                          .Include(b => b.BackgroundColor)
+                                          .SingleOrDefault();
+
+            //BoardDTO boardDTO = MapToBoardDTO(board);
+            BoardDTO boardDTO = new BoardDTO();
+            boardDTO.Title = board.Title;
+            //boardDTO.CurrentBackgroundColorId = board.BackgroundColor.//decide what should be included into board DTO
+            return boardDTO;
         }
 
         public List<BoardDTO> GetAllBoards()
         {
-            IEnumerable<Board> boards = _trelloDbContext.Boards;
+            IEnumerable<Board> boards = _trelloDbContext.Boards.ToList();
 
             List<BoardDTO> boardsDTO = new List<BoardDTO>();
 

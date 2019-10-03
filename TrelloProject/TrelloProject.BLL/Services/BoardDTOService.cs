@@ -56,14 +56,44 @@ namespace TrelloProject.BLL.Services
             }
         }
 
-        public List<BoardDTO> GetAllBoardsDTO()
+        public List<BoardViewModel> GetAllBoards()
         {
-            return _boardRepository.GetAllBoards();
+            try
+            {
+                var boardsDTO = _boardRepository.GetAllBoards();
+
+                List<BoardViewModel> boardViewModels = new List<BoardViewModel>();
+                BoardViewModel boardViewModel = new BoardViewModel();
+                foreach(var boardDTO in boardsDTO)
+                {
+                    boardViewModel.Title = boardDTO.Title;
+                    boardViewModel.CurrentBackgroundColorId = boardDTO.CurrentBackgroundColorId;
+                    boardViewModels.Add(boardViewModel);
+                }
+                return boardViewModels;
+            }
+            catch(Exception innerEx)
+            {
+                throw new Exception("err", innerEx); // custom exception should be thrown
+            }
+             
         }
 
-        public BoardDTO GetBoardDTO(int Id)
+        public BoardViewModel GetBoard(int id)
         {
-           return _boardRepository.GetBoard(Id);
+            BoardViewModel boardViewModel = new BoardViewModel();
+            try
+            {
+                BoardDTO boardDTO = _boardRepository.GetBoard(id);
+                boardViewModel.Title = boardDTO.Title;
+                boardViewModel.CurrentBackgroundColorId = boardDTO.CurrentBackgroundColorId;
+                return boardViewModel;
+            }
+            catch(Exception innerEx)
+            {
+                throw new Exception("The board with ID = " + id + " does not exist", innerEx); // custom exception should be thrown
+            }
+            
             
         }
 

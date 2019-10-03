@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.DAL.EF;
@@ -49,6 +50,19 @@ namespace TrelloProject.DAL.Repositories
                 bgExists = true;
                 return bgExists;
             }
+        }
+
+        public List<BackgroundColorDTO> GetAllBgColors()
+        {
+            IEnumerable<BackgroundColor> bgColors = _trelloDbContext.BackgroundColors.ToList();
+
+            List<BackgroundColorDTO> bgColorsDTO = new List<BackgroundColorDTO>();
+            foreach(var bgColor in bgColors)
+            {
+                BackgroundColorDTO bgColorDTO = MapToBgColorDTO(bgColor);
+                bgColorsDTO.Add(bgColorDTO);
+            }
+            return bgColorsDTO;
         }
     }
 }

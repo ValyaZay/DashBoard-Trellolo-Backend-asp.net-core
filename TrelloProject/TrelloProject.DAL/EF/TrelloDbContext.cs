@@ -37,11 +37,11 @@ namespace TrelloProject.DAL.EF
 
             modelBuilder.Entity<BackgroundColor>()
                 .HasData(
-                new BackgroundColor() { BackgroundColorId = 1, ColorHex = "#C0C0C0" }, //grey
-                new BackgroundColor() { BackgroundColorId = 2, ColorHex = "#ffff00" }, //yellow
-                new BackgroundColor() { BackgroundColorId = 3, ColorHex = "#FFA500" }, //orange
-                new BackgroundColor() { BackgroundColorId = 4, ColorHex = "#0000FF" }, //blue
-                new BackgroundColor() { BackgroundColorId = 5, ColorHex = "#008000" } //green
+                new BackgroundColor() { BackgroundColorId = 1, ColorHex = "#C0C0C0", ColorName = "Grey" }, 
+                new BackgroundColor() { BackgroundColorId = 2, ColorHex = "#ffff00", ColorName = "Yellow" }, 
+                new BackgroundColor() { BackgroundColorId = 3, ColorHex = "#FFA500", ColorName = "Orange" }, 
+                new BackgroundColor() { BackgroundColorId = 4, ColorHex = "#0000FF", ColorName = "Blue" }, 
+                new BackgroundColor() { BackgroundColorId = 5, ColorHex = "#008000", ColorName = "Green" } 
                 );
 
             modelBuilder.Entity<CardList>()
