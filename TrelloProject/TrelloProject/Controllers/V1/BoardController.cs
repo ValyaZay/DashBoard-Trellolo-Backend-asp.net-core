@@ -27,7 +27,7 @@ namespace TrelloProject.WEB.Controllers.V1
         // GET: api/v1/Board
         
         [HttpGet(ApiRoutes.Board.GetAll)]
-        [ProducesResponseType(typeof(List<BoardViewModel>), 200)]
+        [ProducesResponseType(typeof(List<BoardBgViewModel>), 200)]
         [ProducesResponseType(400)]
         public IActionResult Get()
         {
@@ -56,7 +56,7 @@ namespace TrelloProject.WEB.Controllers.V1
 
         //GET: api/v1/Board/5
         [HttpGet(ApiRoutes.Board.GetById)]
-        [ProducesResponseType(typeof(BoardViewModel), 200)]
+        [ProducesResponseType(typeof(BoardBgViewModel), 200)]
         [ProducesResponseType(404)]
         public IActionResult GetById(int id)
         {
@@ -82,7 +82,7 @@ namespace TrelloProject.WEB.Controllers.V1
                 {
                     int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
                     var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
-                    var locationUri = baseUrl + "/" + ApiRoutes.Board.GetById.Replace("{BoardId}", id.ToString());
+                    var locationUri = baseUrl + "/" + ApiRoutes.Board.GetById.Replace("{id}", id.ToString());
                     return Created(locationUri, new BoardDTO { BoardId = id, Title = boardCreateViewModel.Title, CurrentBackgroundColorId = (int)boardCreateViewModel.CurrentBackgroundColorId });
                     //return CreatedAtAction(nameof(GetById), new { id }, boardCreateViewModel);
                 }
