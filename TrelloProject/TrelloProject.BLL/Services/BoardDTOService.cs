@@ -27,19 +27,24 @@ namespace TrelloProject.BLL.Services
             newBoardDTO.Title = boardCreateViewModel.Title;
             int bgColorId = (boardCreateViewModel.CurrentBackgroundColorId != 0) ? boardCreateViewModel.CurrentBackgroundColorId : 1;
             //check whether bg color exists
-            bool bgExists = _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
-            if(bgExists == false)
+            try
             {
-                throw new NullReferenceException("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
-            }
-            else
-            {
+                _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
                 newBoardDTO.CurrentBackgroundColorId = bgColorId;
+                var createdBoardId = _boardRepository.Create(newBoardDTO);
+                if(createdBoardId > 0)
+                {
+                    //get by id and map to BoardBgViewModel
+                }
+                else
+                {
+                    //return error "Board is not created"
+                }
             }
-
-            int id = _boardRepository.Create(newBoardDTO);
-            return id;
-            
+            catch (Exception repoEx)
+            {
+                throw new Exception("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist", repoEx); // custom service-exception should be thrown
+            }
         }
 
         public void DeleteBoardDTO(int id)
@@ -70,6 +75,7 @@ namespace TrelloProject.BLL.Services
                     BoardBgViewModel boardBgViewModel = new BoardBgViewModel();
                     boardBgViewModel.Id = boardBgDTO.Id;
                     boardBgViewModel.Title = boardBgDTO.Title;
+                    boardBgViewModel.BgColorId = boardBgDTO.BgColorId;
                     boardBgViewModel.BgColorName = boardBgDTO.BgColorName;
                     boardBgViewModel.BgColorHex = boardBgDTO.BgColorHex;
 
@@ -95,6 +101,7 @@ namespace TrelloProject.BLL.Services
 
                 boardBgViewModel.Id = boardBgDTO.Id;
                 boardBgViewModel.Title = boardBgDTO.Title;
+                boardBgViewModel.BgColorId = boardBgDTO.BgColorId;
                 boardBgViewModel.BgColorName = boardBgDTO.BgColorName;
                 boardBgViewModel.BgColorHex = boardBgDTO.BgColorHex;
 

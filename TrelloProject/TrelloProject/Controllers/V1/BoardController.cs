@@ -74,6 +74,8 @@ namespace TrelloProject.WEB.Controllers.V1
 
         //POST: api/v1/Board
         [HttpPost(ApiRoutes.Board.Create)]
+        [ProducesResponseType(typeof(BoardBgViewModel), 201)]
+        [ProducesResponseType(400)]
         public IActionResult Create([FromBody] BoardCreateViewModel boardCreateViewModel)
         {
             if (ModelState.IsValid)
@@ -86,17 +88,16 @@ namespace TrelloProject.WEB.Controllers.V1
                     return Created(locationUri, new BoardDTO { BoardId = id, Title = boardCreateViewModel.Title, CurrentBackgroundColorId = (int)boardCreateViewModel.CurrentBackgroundColorId });
                     //return CreatedAtAction(nameof(GetById), new { id }, boardCreateViewModel);
                 }
-                catch (NullReferenceException)
+                catch (Exception ex) //custom exception should be caught 
                 {
-                    return NotFound("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
+                    return NotFound(ex.Message);
+                    //custom exception should contain - 404 NotFound "The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist",
+                    //                                  400 BadRequest(error: "Board Title " + boardCreateViewModel.Title + " already exists")
                 }
-                catch (Exception)
-                {
-                    return BadRequest(error: "Board Title " + boardCreateViewModel.Title + " already exists");
-                }
+                
 
             }
-            return BadRequest("Insert valid data");
+            return BadRequest("Insert valid data");//object error should be returned
         }
 
         // PUT: api/v1/Board/5

@@ -8,6 +8,7 @@ namespace TrelloProject.DTOsAndViewModels.DTOs
     {
         public int Id { get; set; }
         public string Title { get; set; }
+        public int BgColorId { get; set; }
         public string BgColorName { get; set; }
         public string BgColorHex { get; set; }
     }

@@ -150,6 +150,7 @@ namespace TrelloProject.IntegrationTests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var returnedBoard = await response.Content.ReadAsAsync<BoardBgViewModel>();
             returnedBoard.Id.Should().Be(createdBoard.BoardId);
+            returnedBoard.BgColorId.Should().Be(createdBoard.CurrentBackgroundColorId);
             returnedBoard.Title.Should().Be(createdBoard.Title);
             
             returnedBoard.Should().NotBeNull();

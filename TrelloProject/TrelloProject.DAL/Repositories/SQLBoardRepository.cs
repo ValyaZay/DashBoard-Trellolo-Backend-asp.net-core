@@ -56,6 +56,7 @@ namespace TrelloProject.DAL.Repositories
 
             boardBgDTO.Id = board.BoardId;
             boardBgDTO.Title = board.Title;
+            boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
             boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
             boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
 
@@ -76,6 +77,7 @@ namespace TrelloProject.DAL.Repositories
                 
                 boardBgDTO.Id = board.BoardId;
                 boardBgDTO.Title = board.Title;
+                boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
                 boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
                 boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
 
@@ -86,12 +88,19 @@ namespace TrelloProject.DAL.Repositories
 
         public int Create(BoardDTO newBoardDTO)
         {
-            
-            Board newBoard = MapToBoard(newBoardDTO);
-            _trelloDbContext.Boards.Add(newBoard);
-            _trelloDbContext.SaveChanges();
-                        
-            return newBoard.BoardId;
+            Board board = new Board();
+            board.Title = newBoardDTO.Title;
+            board.CurrentBackgroundColorId = newBoardDTO.CurrentBackgroundColorId;
+            _trelloDbContext.Boards.Add(board);
+            try
+            {
+                _trelloDbContext.SaveChanges();
+            }
+            catch (Exception repoEx)
+            {
+                throw new Exception(repoEx.Message);//throw custom repo-ex
+            }
+            return board.BoardId;
         }
 
         public int Update(BoardDTO updatedBoardDTO)
