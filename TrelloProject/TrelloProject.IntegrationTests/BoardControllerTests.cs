@@ -144,14 +144,14 @@ namespace TrelloProject.IntegrationTests
             var createdBoard = await CreateBoardAsync( new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 });
             
             //Act
-            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", createdBoard.BoardId.ToString()));
+            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", createdBoard.BoardId.ToString()));
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returnedBoard = await response.Content.ReadAsAsync<BoardDTO>();
-            returnedBoard.BoardId.Should().Be(createdBoard.BoardId);
+            var returnedBoard = await response.Content.ReadAsAsync<BoardBgViewModel>();
+            returnedBoard.Id.Should().Be(createdBoard.BoardId);
             returnedBoard.Title.Should().Be(createdBoard.Title);
-            returnedBoard.CurrentBackgroundColorId.Should().Be((int)createdBoard.CurrentBackgroundColorId);
+            
             returnedBoard.Should().NotBeNull();
         }
 

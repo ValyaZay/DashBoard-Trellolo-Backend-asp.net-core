@@ -23,23 +23,23 @@ namespace TrelloProject.BLL.Services
 
         public int CreateBoardDTO(BoardCreateViewModel boardCreateViewModel)
         {
-            //BoardDTO newBoardDTO = new BoardDTO();
-            //newBoardDTO.Title = boardCreateViewModel.Title;
-            //int bgColorId = (boardCreateViewModel.CurrentBackgroundColorId != 0) ? boardCreateViewModel.CurrentBackgroundColorId : 1;
-            ////check whether bg color exists
-            //bool bgExists = _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
-            //if(bgExists == false)
-            //{
-            //    throw new NullReferenceException("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
-            //}
-            //else
-            //{
-            //    newBoardDTO.CurrentBackgroundColorId = bgColorId;
-            //}
+            BoardDTO newBoardDTO = new BoardDTO();
+            newBoardDTO.Title = boardCreateViewModel.Title;
+            int bgColorId = (boardCreateViewModel.CurrentBackgroundColorId != 0) ? boardCreateViewModel.CurrentBackgroundColorId : 1;
+            //check whether bg color exists
+            bool bgExists = _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
+            if(bgExists == false)
+            {
+                throw new NullReferenceException("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
+            }
+            else
+            {
+                newBoardDTO.CurrentBackgroundColorId = bgColorId;
+            }
 
-            //int id = _boardRepository.Create(newBoardDTO);
-            //return id;
-            return 3;
+            int id = _boardRepository.Create(newBoardDTO);
+            return id;
+            
         }
 
         public void DeleteBoardDTO(int id)
