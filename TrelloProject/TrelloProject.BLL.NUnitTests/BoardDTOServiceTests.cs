@@ -150,13 +150,13 @@ namespace TrelloProject.BLL.Tests
             string idString = DateTime.Now.Ticks.ToString().Substring(0, 9);
             int id = Convert.ToInt32(idString);
 
-            mock.Setup(a => a.Update(boardDTO)).Returns(id);
+            mock.Setup(a => a.Update(boardDTO)).Returns(true);
             //mock.Setup(a => a.GetBoard(id)).Returns(new BoardDTO());
             BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
             BoardUpdateViewModel boardUpdateViewModel = new BoardUpdateViewModel();
             
             //Act
-            var result = boardDTOService.UpdateBoardDTO(id, boardUpdateViewModel);
+            var result = boardDTOService.UpdateBoardDTO(boardUpdateViewModel);
 
             //Assert
             Assert.IsInstanceOf<int>(result);

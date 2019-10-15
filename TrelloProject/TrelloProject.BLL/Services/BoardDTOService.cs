@@ -5,6 +5,7 @@ using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using System;
+using TrelloProject.DTOsAndViewModels.Exceptions;
 
 namespace TrelloProject.BLL.Services
 {
@@ -34,31 +35,35 @@ namespace TrelloProject.BLL.Services
                 var createdBoardId = _boardRepository.Create(newBoardDTO);
                 if(createdBoardId > 0)
                 {
-                    //get by id and map to BoardBgViewModel
+                    return createdBoardId;
                 }
                 else
                 {
-                    //return error "Board is not created"
+                    throw new BoardIsNotCreated("Board is not created"); // custom service-exception should be thrown
                 }
             }
-            catch (Exception repoEx)
+            catch (BoardTitleAlreadyExists)
             {
-                throw new Exception("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist", repoEx); // custom service-exception should be thrown
+                throw new BoardTitleAlreadyExists();
+            }
+            catch (BgColorDoesNotExistException repoEx)
+            {
+                throw new BgColorDoesNotExistException(repoEx.Message); // custom service-exception should be thrown
             }
         }
 
         public void DeleteBoardDTO(int id)
         {
             //BoardDTO boardDTO = _boardRepository.GetBoard(id);
-            //if(boardDTO == null)
+            //if (boardDTO == null)
             //{
             //    throw new NullReferenceException("The item with ID=" + id + " does not exist");
             //}
-            
+
             //else
             //{
             //    _boardRepository.Delete(id);
-            //    deleted = true;
+
             //}
         }
 
@@ -107,22 +112,45 @@ namespace TrelloProject.BLL.Services
 
                 return boardBgViewModel;
             }
-            catch(Exception innerEx)
+            catch(BoardDoesNotExistException e)
             {
-                throw new Exception("The board with ID = " + id + " does not exist", innerEx); // custom exception should be thrown
+                throw new BoardDoesNotExistException(e.Message); // custom exception should be thrown
             }
             
             
         }
 
-        public int UpdateBoardDTO(int id, BoardUpdateViewModel boardUpdateViewModel)
+        public bool UpdateBoardDTO(BoardUpdateViewModel boardUpdateViewModel)
         {
-            //BoardBgDTO boardToUpdate = _boardRepository.GetBoard(id);
-            //boardToUpdate.Title = boardUpdateViewModel.Title;
-            //boardToUpdate.CurrentBackgroundColorId = (int)boardUpdateViewModel.CurrentBackgroundColorId;
-            //_boardRepository.Update(boardToUpdate);
-            //return boardToUpdate.BoardId;
-            return 2;
+            BoardDTO boardDTO = new BoardDTO();
+
+            boardDTO.BoardId = boardUpdateViewModel.Id;
+            boardDTO.Title = boardUpdateViewModel.Title;
+           
+            int bgColorId = (boardUpdateViewModel.CurrentBackgroundColorId != 0) ? boardUpdateViewModel.CurrentBackgroundColorId : 1;
+            try
+            {
+                BoardBgDTO boardBgDTO = _boardRepository.GetBoard(boardUpdateViewModel.Id);
+
+                _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
+                boardDTO.CurrentBackgroundColorId = bgColorId;
+
+                var status = _boardRepository.Update(boardDTO);
+                return status;
+            }
+            
+            catch (BoardTitleAlreadyExists)
+            {
+                throw new BoardTitleAlreadyExists();
+            }
+            catch (BgColorDoesNotExistException)
+            {
+                throw new BgColorDoesNotExistException(); // custom service-exception should be thrown
+            }
+            catch (BoardDoesNotExistException)
+            {
+                throw new BoardDoesNotExistException(); // custom exception should be thrown
+            }
         }
     }
 }
