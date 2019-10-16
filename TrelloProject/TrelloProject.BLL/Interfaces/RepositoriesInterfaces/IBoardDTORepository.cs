@@ -10,6 +10,6 @@ namespace TrelloProject.BLL.Interfaces.RepositoriesInterfaces
         List<BoardBgDTO> GetAllBoards();
         int Create(BoardDTO newBoardDTO);
         bool Update(BoardDTO updatedBoardDTO);
-        void Delete(int id);
+        bool Delete(int id);
     }
 }

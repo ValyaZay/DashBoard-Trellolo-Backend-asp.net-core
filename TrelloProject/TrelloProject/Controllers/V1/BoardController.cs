@@ -147,12 +147,23 @@ namespace TrelloProject.WEB.Controllers.V1
 
         // DELETE: api/v1/Board/5
         [HttpDelete(ApiRoutes.Board.Delete)]
+        [ProducesResponseType(typeof(int), 204)]
+        [ProducesResponseType(typeof(string), 404)]
+        [ProducesResponseType(typeof(string), 400)]
         public IActionResult Delete(int id)
         {
             try
             {
-                _boardDTOService.DeleteBoardDTO(id);
-                return NoContent();
+                var status = _boardDTOService.DeleteBoardDTO(id);
+                if (status)
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    return BadRequest("Board is not deleted");
+                }
+                
             }
             catch (NullReferenceException)
             {

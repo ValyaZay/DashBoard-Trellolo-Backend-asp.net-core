@@ -52,19 +52,27 @@ namespace TrelloProject.BLL.Services
             }
         }
 
-        public void DeleteBoardDTO(int id)
+        public bool DeleteBoardDTO(int id)
         {
-            //BoardDTO boardDTO = _boardRepository.GetBoard(id);
-            //if (boardDTO == null)
-            //{
-            //    throw new NullReferenceException("The item with ID=" + id + " does not exist");
-            //}
+            BoardBgDTO boardDTO = _boardRepository.GetBoard(id);
+            if (boardDTO == null)
+            {
+                throw new NullReferenceException("The item with ID=" + id + " does not exist");
+            }
 
-            //else
-            //{
-            //    _boardRepository.Delete(id);
-
-            //}
+            else
+            {
+                try
+                {
+                    bool status = _boardRepository.Delete(id);
+                    return status;
+                }
+                catch (Exception)
+                {
+                    throw new Exception();
+                }
+                
+            }
         }
 
         public List<BoardBgViewModel> GetAllBoards()

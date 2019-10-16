@@ -135,11 +135,28 @@ namespace TrelloProject.DAL.Repositories
             }
         }
 
-        public void Delete(int id)
+        public bool Delete(int id)
         {
             Board boardToDelete = _trelloDbContext.Boards.Find(id);
             _trelloDbContext.Remove(boardToDelete);
-            _trelloDbContext.SaveChanges();
+            try
+            {
+                int deleted = _trelloDbContext.SaveChanges();
+                if(deleted > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                 
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
+            
             
         }
     }
