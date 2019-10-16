@@ -6,6 +6,7 @@ using System.Text;
 using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.DAL.Repositories;
+using TrelloProject.DTOsAndViewModels.Exceptions;
 
 namespace TrelloProject.DAL.NUnitTests
 {
@@ -58,7 +59,7 @@ namespace TrelloProject.DAL.NUnitTests
                 var repository = new SQLBackgroundColorRepository(context);
 
                 //Assert
-                Assert.Throws<NullReferenceException>(() => repository.DoesBackgroundColorExist(idDoesNotExist));
+                Assert.Throws<BgColorDoesNotExistException>(() => repository.DoesBackgroundColorExist(idDoesNotExist));
             }
         }
     }

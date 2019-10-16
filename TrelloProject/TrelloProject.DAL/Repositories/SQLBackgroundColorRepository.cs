@@ -7,6 +7,7 @@ using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using TrelloProject.DTOsAndViewModels.Exceptions;
 
 namespace TrelloProject.DAL.Repositories
 {
@@ -43,7 +44,7 @@ namespace TrelloProject.DAL.Repositories
             BackgroundColor backgroundColor = _trelloDbContext.BackgroundColors.Find(id);
             if(backgroundColor == null)
             {
-                throw new NullReferenceException();
+                throw new BgColorDoesNotExistException();
             }
             else
             {

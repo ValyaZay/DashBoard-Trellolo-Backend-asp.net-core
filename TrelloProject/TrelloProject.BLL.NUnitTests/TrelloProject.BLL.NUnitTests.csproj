@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TrelloProject.BLL\TrelloProject.BLL.csproj" />
     <ProjectReference Include="..\TrelloProject.DAL\TrelloProject.DAL.csproj" />
+    <ProjectReference Include="..\TrelloProject\TrelloProject.WEB.csproj" />
   </ItemGroup>
 
 </Project>

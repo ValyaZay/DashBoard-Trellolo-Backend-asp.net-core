@@ -18,9 +18,9 @@ namespace TrelloProject.WEB.Contracts.V1
 
             public const string GetById = Base + "/board/{id}";
 
-            public const string Update = Base + "/board/{BoardId}";
+            public const string Update = Base + "/board/";
 
-            public const string Delete = Base + "/board/{BoardId}";
+            public const string Delete = Base + "/board/{id}";
 
             public const string Create = Base + "/board";
 

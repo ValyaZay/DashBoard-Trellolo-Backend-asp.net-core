@@ -7,6 +7,7 @@ using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using TrelloProject.DTOsAndViewModels.Exceptions;
 
 namespace TrelloProject.DAL.Repositories
 {
@@ -47,24 +48,35 @@ namespace TrelloProject.DAL.Repositories
 
         public BoardBgDTO GetBoard(int id)
         {
-            //should be caught System.InvalidOperationException
-            Board board = _trelloDbContext.Boards.Where(b => b.BoardId == id)
-                                                 .Include(b => b.BackgroundColor)
-                                                 .FirstOrDefault(); 
-            //BackgroundColor bgColor = FindBgColor(board);
-            BoardBgDTO boardBgDTO = new BoardBgDTO();
+            try
+            {
+                //should be caught System.InvalidOperationException
+                Board board = _trelloDbContext.Boards.Where(b => b.BoardId == id)
+                                                     .Include(b => b.BackgroundColor)
+                                                     .AsNoTracking()
+                                                     .FirstOrDefault();
+                //BackgroundColor bgColor = FindBgColor(board);
+                BoardBgDTO boardBgDTO = new BoardBgDTO();
 
-            boardBgDTO.Id = board.BoardId;
-            boardBgDTO.Title = board.Title;
-            boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
-            boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
+                boardBgDTO.Id = board.BoardId;
+                boardBgDTO.Title = board.Title;
+                boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
+                boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
+                boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
+                return boardBgDTO;
+            }
+            catch (Exception e)
+            {
+                throw new BoardDoesNotExistException(e.Message);//throw custom repo-ex
+            }
 
-            return boardBgDTO;
+            
         }
 
         public List<BoardBgDTO> GetAllBoards()
         {
             IEnumerable<Board> boards = _trelloDbContext.Boards.Include(b => b.BackgroundColor)
+                                                               .AsNoTracking()
                                                                .ToList();
 
             List<BoardBgDTO> boardsBgDTO = new List<BoardBgDTO>();
@@ -76,6 +88,7 @@ namespace TrelloProject.DAL.Repositories
                 
                 boardBgDTO.Id = board.BoardId;
                 boardBgDTO.Title = board.Title;
+                boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
                 boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
                 boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
 
@@ -86,30 +99,65 @@ namespace TrelloProject.DAL.Repositories
 
         public int Create(BoardDTO newBoardDTO)
         {
+            Board board = new Board();
+            board.Title = newBoardDTO.Title;
+            board.CurrentBackgroundColorId = newBoardDTO.CurrentBackgroundColorId;
+            _trelloDbContext.Boards.Add(board);
+            try
+            {
+                _trelloDbContext.SaveChanges();
+            }
             
-            Board newBoard = MapToBoard(newBoardDTO);
-            _trelloDbContext.Boards.Add(newBoard);
-            _trelloDbContext.SaveChanges();
-                        
-            return newBoard.BoardId;
+            catch (Exception)
+            {
+                throw new BoardTitleAlreadyExists();//throw custom repo-ex
+            }
+            return board.BoardId;
         }
 
-        public int Update(BoardDTO updatedBoardDTO)
+        public bool Update(BoardDTO updatedBoardDTO)
         {
-            Board boardToUpdate = _trelloDbContext.Boards.Find(updatedBoardDTO.BoardId);
-            boardToUpdate.Title = updatedBoardDTO.Title;
-            boardToUpdate.CurrentBackgroundColorId = updatedBoardDTO.CurrentBackgroundColorId;
-            _trelloDbContext.SaveChanges();
-            return updatedBoardDTO.BoardId;
-            
+            Board board = new Board();
+            board.BoardId = updatedBoardDTO.BoardId;
+            board.Title = updatedBoardDTO.Title;
+            board.CurrentBackgroundColorId = updatedBoardDTO.CurrentBackgroundColorId;
+
+            _trelloDbContext.Boards.Attach(board);
+            _trelloDbContext.Entry(board).State = EntityState.Modified;
+
+            try
+            {
+                return (_trelloDbContext.SaveChanges() > 0 ? true : false);
+            }
+            catch (Exception)
+            {
+                throw new BoardTitleAlreadyExists();//throw custom repo-ex
+            }
         }
 
-        public void Delete(int id)
+        public bool Delete(int id)
         {
             Board boardToDelete = _trelloDbContext.Boards.Find(id);
             _trelloDbContext.Remove(boardToDelete);
-            _trelloDbContext.SaveChanges();
-            deleted = true;
+            try
+            {
+                int deleted = _trelloDbContext.SaveChanges();
+                if(deleted > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                 
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
+            
+            
         }
     }
 }
