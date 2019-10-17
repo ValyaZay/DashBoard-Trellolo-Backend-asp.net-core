@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using TrelloProject.DAL.Entities;
 
 namespace TrelloProject.DAL.EF
 {
-    internal class TrelloDbContext : DbContext
+    internal class TrelloDbContext : IdentityDbContext<User>
     {
         public TrelloDbContext(DbContextOptions<TrelloDbContext> options)
             : base(options)
@@ -14,15 +15,19 @@ namespace TrelloProject.DAL.EF
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Board>()
                 .HasIndex(board => board.Title)
                 .IsUnique();
 
             modelBuilder.Entity<User>()
                 .HasData(
-                new User() { UserId = 1, FirstName = "Valya", LastName = "Zay", Email = "valya@valya.net" },
-                new User() { UserId = 2, FirstName = "Vova", LastName = "Petrov", Email = "vova@vova.com" },
-                new User() { UserId = 3, FirstName = "Gora", LastName = "Sidorov", Email = "gora@gora.net" }
+                new User() { Id = "1", FirstName = "Valya", LastName = "Zay", Email = "valya@valya.net" },
+                new User() { Id = "2", FirstName = "Vova", LastName = "Petrov", Email = "vova@vova.com" },
+                new User() { Id = "3", FirstName = "Gora", LastName = "Sidorov", Email = "gora@gora.net" }
+
+
                 );
 
             modelBuilder.Entity<Board>()
@@ -32,7 +37,7 @@ namespace TrelloProject.DAL.EF
 
             modelBuilder.Entity<UserBoard>()
                 .HasData(
-                new UserBoard() { UserId = 2, BoardId = 1 }
+                new UserBoard() { UserId = "2", BoardId = 1 }
                 );
 
             modelBuilder.Entity<BackgroundColor>()
@@ -53,15 +58,15 @@ namespace TrelloProject.DAL.EF
 
             modelBuilder.Entity<Card>()
                 .HasData(
-                new Card() { CardId = 1, Title = "Create a task", Description = "Just create a new task", CreatedDate = DateTime.Parse("2019-08-23"), CreatedById = 1, AssigneeId = 2, Hidden = false, CardListId = 1 },
-                new Card() { CardId = 2, Title = "Implement an Interface", Description = "Implement INewInterface now", CreatedDate = DateTime.Parse("2019-08-15"), CreatedById = 1, AssigneeId = 3, Hidden = false, CardListId = 1 }
+                new Card() { CardId = 1, Title = "Create a task", Description = "Just create a new task", CreatedDate = DateTime.Parse("2019-08-23"), CreatedById = "1", AssigneeId = "2", Hidden = false, CardListId = 1 },
+                new Card() { CardId = 2, Title = "Implement an Interface", Description = "Implement INewInterface now", CreatedDate = DateTime.Parse("2019-08-15"), CreatedById = "1", AssigneeId = "3", Hidden = false, CardListId = 1 }
 
                 );
 
             modelBuilder.Entity<CardComment>()
                 .HasData(
-                new CardComment() { CardCommentId = 1, Text = "Good comment", CreatedDate = DateTime.Parse("2019-02-15"), CreatedById = 2, RefersToId = null, CardId = 1 },
-                new CardComment() { CardCommentId = 2, Text = "Bad comment", CreatedDate = DateTime.Parse("2019-04-18"), CreatedById = 2, RefersToId = 1, CardId = 1 }
+                new CardComment() { CardCommentId = 1, Text = "Good comment", CreatedDate = DateTime.Parse("2019-02-15"), CreatedById = "2", RefersToId = null, CardId = 1 },
+                new CardComment() { CardCommentId = 2, Text = "Bad comment", CreatedDate = DateTime.Parse("2019-04-18"), CreatedById = "2", RefersToId = 1, CardId = 1 }
 
                 );
 
