@@ -21,7 +21,7 @@ namespace TrelloProject.DAL.Entities
         [ForeignKey("CreatedById")]
         public User CreatedBy { get; set; }
 
-        public int CreatedById { get; set; }
+        public string CreatedById { get; set; }
 
     }
 }

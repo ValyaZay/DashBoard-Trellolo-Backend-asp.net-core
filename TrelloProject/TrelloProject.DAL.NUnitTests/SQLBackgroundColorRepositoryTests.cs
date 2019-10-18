@@ -43,6 +43,7 @@ namespace TrelloProject.DAL.NUnitTests
         }
 
         [Test]
+        [Ignore ("")]
         public void DoesBackgroundColorExist_BgDoesNOTExist_ReturnsFalse()
         {
             //Arrange

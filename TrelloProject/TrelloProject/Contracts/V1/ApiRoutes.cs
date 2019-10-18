@@ -30,5 +30,19 @@ namespace TrelloProject.WEB.Contracts.V1
         {
             public const string GetAll = Base + "/bgColors";
         }
+
+        public static class Account
+        {
+            public const string Register = Base + "/account/register";
+
+            public const string GetRegisteredUserById = Base + "/account/{id}";
+        }
+
+        public static class Administration
+        {
+            public const string CreateRole = Base + "/administration/createrole";
+            public const string GetRoleById = Base + "/administration/role/{id}";
+        }
+
     }
 }
