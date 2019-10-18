@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using TrelloProject.DTOsAndViewModels.Exceptions;
 
 namespace TrelloProject.DAL.Repositories
 {
@@ -42,13 +44,26 @@ namespace TrelloProject.DAL.Repositories
             BackgroundColor backgroundColor = _trelloDbContext.BackgroundColors.Find(id);
             if(backgroundColor == null)
             {
-                throw new NullReferenceException();
+                throw new BgColorDoesNotExistException();
             }
             else
             {
                 bgExists = true;
                 return bgExists;
             }
+        }
+
+        public List<BackgroundColorDTO> GetAllBgColors()
+        {
+            IEnumerable<BackgroundColor> bgColors = _trelloDbContext.BackgroundColors.ToList();
+
+            List<BackgroundColorDTO> bgColorsDTO = new List<BackgroundColorDTO>();
+            foreach(var bgColor in bgColors)
+            {
+                BackgroundColorDTO bgColorDTO = MapToBgColorDTO(bgColor);
+                bgColorsDTO.Add(bgColorDTO);
+            }
+            return bgColorsDTO;
         }
     }
 }

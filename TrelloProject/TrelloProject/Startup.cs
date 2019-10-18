@@ -2,13 +2,18 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Swashbuckle.AspNetCore.Swagger;
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.BLL.Services;
+using TrelloProject.DAL.EF;
+using TrelloProject.DAL.Entities;
 using TrelloProject.DAL.Extensions;
+
 
 
 namespace TrelloProject
@@ -35,15 +40,33 @@ namespace TrelloProject
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            //services.AddIdentity<User, IdentityRole>(options => {
+            //    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+/";
+            //})
+            
+            //services.AddIdentity<User, IdentityRole>()
+            //        .AddEntityFrameworkStores<TrelloDbContext>();
+
+            
+            services.AddIdentityUserAndIdentityRoleDALExtension()
+                    .AddEntityFrameworkStoresDbContext();
+
             services.AddDbContextDALExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
             
             services.AddScoped<IBoardDTOService, BoardDTOService>();
-            
+            services.AddScoped<IBackgroundColorDTOService, BackgroundColorDTOService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAdministrationService, AdministrationService>();
+
             services.AddDALDependencyInjection();
 
-            //test
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Trello API", Version = "v1" });
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+          
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,7 +88,21 @@ namespace TrelloProject
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
             app.UseCookiePolicy();
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Trello API V1");
+                c.RoutePrefix = string.Empty;
+            });
+
+            app.UseAuthentication();
 
             app.UseMvc();
            

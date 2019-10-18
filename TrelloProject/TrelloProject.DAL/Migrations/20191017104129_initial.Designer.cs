@@ -10,8 +10,8 @@ using TrelloProject.DAL.EF;
 namespace TrelloProject.DAL.Migrations
 {
     [DbContext(typeof(TrelloDbContext))]
-    [Migration("20190827094842_AssignedByIdFkAdded")]
-    partial class AssignedByIdFkAdded
+    [Migration("20191017104129_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,6 +21,116 @@ namespace TrelloProject.DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType");
+
+                    b.Property<string>("ClaimValue");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType");
+
+                    b.Property<string>("ClaimValue");
+
+                    b.Property<string>("UserId")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider");
+
+                    b.Property<string>("ProviderKey");
+
+                    b.Property<string>("ProviderDisplayName");
+
+                    b.Property<string>("UserId")
+                        .IsRequired();
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId");
+
+                    b.Property<string>("RoleId");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId");
+
+                    b.Property<string>("LoginProvider");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("Value");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens");
+                });
+
             modelBuilder.Entity("TrelloProject.DAL.Entities.BackgroundColor", b =>
                 {
                     b.Property<int>("BackgroundColorId")
@@ -28,6 +138,8 @@ namespace TrelloProject.DAL.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ColorHex");
+
+                    b.Property<string>("ColorName");
 
                     b.HasKey("BackgroundColorId");
 
@@ -37,27 +149,32 @@ namespace TrelloProject.DAL.Migrations
                         new
                         {
                             BackgroundColorId = 1,
-                            ColorHex = "#C0C0C0"
+                            ColorHex = "#C0C0C0",
+                            ColorName = "Grey"
                         },
                         new
                         {
                             BackgroundColorId = 2,
-                            ColorHex = "#ffff00"
+                            ColorHex = "#ffff00",
+                            ColorName = "Yellow"
                         },
                         new
                         {
                             BackgroundColorId = 3,
-                            ColorHex = "#FFA500"
+                            ColorHex = "#FFA500",
+                            ColorName = "Orange"
                         },
                         new
                         {
                             BackgroundColorId = 4,
-                            ColorHex = "#0000FF"
+                            ColorHex = "#0000FF",
+                            ColorName = "Blue"
                         },
                         new
                         {
                             BackgroundColorId = 5,
-                            ColorHex = "#008000"
+                            ColorHex = "#008000",
+                            ColorName = "Green"
                         });
                 });
 
@@ -74,6 +191,10 @@ namespace TrelloProject.DAL.Migrations
                     b.HasKey("BoardId");
 
                     b.HasIndex("CurrentBackgroundColorId");
+
+                    b.HasIndex("Title")
+                        .IsUnique()
+                        .HasFilter("[Title] IS NOT NULL");
 
                     b.ToTable("Boards");
 
@@ -92,11 +213,11 @@ namespace TrelloProject.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("AssigneeId");
+                    b.Property<string>("AssigneeId");
 
                     b.Property<int>("CardListId");
 
-                    b.Property<int>("CreatedById");
+                    b.Property<string>("CreatedById");
 
                     b.Property<DateTime>("CreatedDate");
 
@@ -120,8 +241,9 @@ namespace TrelloProject.DAL.Migrations
                         new
                         {
                             CardId = 1,
+                            AssigneeId = "2",
                             CardListId = 1,
-                            CreatedById = 1,
+                            CreatedById = "1",
                             CreatedDate = new DateTime(2019, 8, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Just create a new task",
                             Hidden = false,
@@ -130,8 +252,9 @@ namespace TrelloProject.DAL.Migrations
                         new
                         {
                             CardId = 2,
+                            AssigneeId = "3",
                             CardListId = 1,
-                            CreatedById = 1,
+                            CreatedById = "1",
                             CreatedDate = new DateTime(2019, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Implement INewInterface now",
                             Hidden = false,
@@ -147,7 +270,7 @@ namespace TrelloProject.DAL.Migrations
 
                     b.Property<int>("CardId");
 
-                    b.Property<string>("CreatedBy");
+                    b.Property<string>("CreatedById");
 
                     b.Property<DateTime>("CreatedDate");
 
@@ -159,6 +282,8 @@ namespace TrelloProject.DAL.Migrations
 
                     b.HasIndex("CardId");
 
+                    b.HasIndex("CreatedById");
+
                     b.HasIndex("RefersToId");
 
                     b.ToTable("CardComments");
@@ -168,7 +293,7 @@ namespace TrelloProject.DAL.Migrations
                         {
                             CardCommentId = 1,
                             CardId = 1,
-                            CreatedBy = "Sasha",
+                            CreatedById = "2",
                             CreatedDate = new DateTime(2019, 2, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Text = "Good comment"
                         },
@@ -176,7 +301,7 @@ namespace TrelloProject.DAL.Migrations
                         {
                             CardCommentId = 2,
                             CardId = 1,
-                            CreatedBy = "Kate",
+                            CreatedById = "2",
                             CreatedDate = new DateTime(2019, 4, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             RefersToId = 1,
                             Text = "Bad comment"
@@ -227,57 +352,163 @@ namespace TrelloProject.DAL.Migrations
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.User", b =>
                 {
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Email");
+                    b.Property<int>("AccessFailedCount");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256);
+
+                    b.Property<bool>("EmailConfirmed");
 
                     b.Property<string>("FirstName");
 
                     b.Property<string>("LastName");
 
-                    b.HasKey("UserId");
+                    b.Property<bool>("LockoutEnabled");
 
-                    b.ToTable("Users");
+                    b.Property<DateTimeOffset?>("LockoutEnd");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("PasswordHash");
+
+                    b.Property<string>("PhoneNumber");
+
+                    b.Property<bool>("PhoneNumberConfirmed");
+
+                    b.Property<string>("SecurityStamp");
+
+                    b.Property<bool>("TwoFactorEnabled");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers");
 
                     b.HasData(
                         new
                         {
-                            UserId = 1,
+                            Id = "1",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "ab9dd962-6812-4ed8-bcc1-efb583a80d72",
                             Email = "valya@valya.net",
+                            EmailConfirmed = false,
                             FirstName = "Valya",
-                            LastName = "Zay"
+                            LastName = "Zay",
+                            LockoutEnabled = false,
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         },
                         new
                         {
-                            UserId = 2,
+                            Id = "2",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "9beec757-76af-40c8-9508-3b2413b0d8c8",
                             Email = "vova@vova.com",
+                            EmailConfirmed = false,
                             FirstName = "Vova",
-                            LastName = "Petrov"
+                            LastName = "Petrov",
+                            LockoutEnabled = false,
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         },
                         new
                         {
-                            UserId = 3,
+                            Id = "3",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "d5f4cefc-ecee-4f0e-a69f-6134b219aed9",
                             Email = "gora@gora.net",
+                            EmailConfirmed = false,
                             FirstName = "Gora",
-                            LastName = "Sidorov"
+                            LastName = "Sidorov",
+                            LockoutEnabled = false,
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false
                         });
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.UserBoard", b =>
                 {
-                    b.Property<int>("UserId");
+                    b.Property<string>("UserId");
 
                     b.Property<int>("BoardId");
-
-                    b.Property<int>("UserBoardId");
 
                     b.HasKey("UserId", "BoardId");
 
                     b.HasIndex("BoardId");
 
                     b.ToTable("UserBoards");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "2",
+                            BoardId = 1
+                        });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("TrelloProject.DAL.Entities.User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("TrelloProject.DAL.Entities.User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TrelloProject.DAL.Entities.User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("TrelloProject.DAL.Entities.User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.Board", b =>
@@ -301,8 +532,7 @@ namespace TrelloProject.DAL.Migrations
 
                     b.HasOne("TrelloProject.DAL.Entities.User", "CreatedBy")
                         .WithMany("CardsCreated")
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CreatedById");
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.CardComment", b =>
@@ -311,6 +541,10 @@ namespace TrelloProject.DAL.Migrations
                         .WithMany("CardComments")
                         .HasForeignKey("CardId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TrelloProject.DAL.Entities.User", "CreatedBy")
+                        .WithMany("CardComments")
+                        .HasForeignKey("CreatedById");
 
                     b.HasOne("TrelloProject.DAL.Entities.CardComment", "RefersTo")
                         .WithMany()

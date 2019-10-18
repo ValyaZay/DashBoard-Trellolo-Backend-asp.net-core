@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TrelloProject.DAL.Entities
+namespace TrelloProject.DTOsAndViewModels.ViewModels
 {
-    internal class BackgroundColor
+    public class BgColorViewModel
     {
-        public int BackgroundColorId { get; set; }
         public string ColorHex { get; set; }
+        
         public string ColorName { get; set; }
-        public IList<Board> Boards { get; set; }
     }
 }

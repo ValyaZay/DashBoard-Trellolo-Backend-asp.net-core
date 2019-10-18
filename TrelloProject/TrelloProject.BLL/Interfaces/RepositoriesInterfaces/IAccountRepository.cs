@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using TrelloProject.DTOsAndViewModels.DTOs;
 
 namespace TrelloProject.BLL.Interfaces.RepositoriesInterfaces
 {
-    public interface IBackgroundColorDTORepository
+    public interface IAccountRepository
     {
-        bool DoesBackgroundColorExist(int id);
-        List<BackgroundColorDTO> GetAllBgColors();
+        Task<string> CreateUser(RegisterDTO registerDTO);
     }
 }

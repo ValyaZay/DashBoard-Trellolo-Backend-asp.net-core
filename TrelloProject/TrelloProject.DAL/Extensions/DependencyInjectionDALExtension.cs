@@ -11,6 +11,8 @@ namespace TrelloProject.DAL.Extensions
         {
             services.AddScoped<IBoardDTORepository, SQLBoardRepository>();
             services.AddScoped<IBackgroundColorDTORepository, SQLBackgroundColorRepository>();
+            services.AddScoped<IAccountRepository, SQLAccountRepository>();
+            services.AddScoped<IAdministrationRepository, SQLAdministrationRepository>();
             return services;
         }
 
