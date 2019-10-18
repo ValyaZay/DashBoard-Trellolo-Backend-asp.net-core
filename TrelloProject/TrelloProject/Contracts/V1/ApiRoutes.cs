@@ -16,14 +16,33 @@ namespace TrelloProject.WEB.Contracts.V1
         {
             public const string GetAll = Base + "/board";
 
-            public const string GetById = Base + "/board/{BoardId}";
+            public const string GetById = Base + "/board/{id}";
 
-            public const string Update = Base + "/board/{BoardId}";
+            public const string Update = Base + "/board/";
 
-            public const string Delete = Base + "/board/{BoardId}";
+            public const string Delete = Base + "/board/{id}";
 
             public const string Create = Base + "/board";
 
         }
+
+        public static class BackgroundColor
+        {
+            public const string GetAll = Base + "/bgColors";
+        }
+
+        public static class Account
+        {
+            public const string Register = Base + "/account/register";
+
+            public const string GetRegisteredUserById = Base + "/account/{id}";
+        }
+
+        public static class Administration
+        {
+            public const string CreateRole = Base + "/administration/createrole";
+            public const string GetRoleById = Base + "/administration/role/{id}";
+        }
+
     }
 }

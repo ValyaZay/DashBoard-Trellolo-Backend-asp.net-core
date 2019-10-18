@@ -22,7 +22,7 @@ namespace TrelloProject.IntegrationTests
     {
         
         [Fact]
-        public async Task Get_IfTheDBIsNotEmpty_ReturnsOKResponse()
+        public async Task Get_IfTheDBIsNotEmpty_ReturnsOKResponseAndCorrectCount()
         {
             // Arrange
             
@@ -31,8 +31,11 @@ namespace TrelloProject.IntegrationTests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returnedType = 
-            (await response.Content.ReadAsAsync<List<BoardDTO>>()).Should().BeOfType<List<BoardDTO>>();
+            var returnedCollection = await response.Content.ReadAsAsync<List<BoardDTO>>();
+            returnedCollection.Count.Should().BeGreaterThan(0);
+            returnedCollection.Should().NotBeNullOrEmpty();
+            returnedCollection.Should().BeOfType<List<BoardDTO>>();
+            returnedCollection.Should().NotContainNulls();
         }
 
         private HttpClient TestClientInMemory;
@@ -55,7 +58,6 @@ namespace TrelloProject.IntegrationTests
             TestClientInMemory = appFactory.CreateClient();
 
             // Act
-           
             var response = await TestClientInMemory.GetAsync(ApiRoutes.Board.GetAll);
 
             // Assert
@@ -69,7 +71,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 1 };
             
             //Act
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
@@ -98,7 +100,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardWithATitle = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardWithATitle = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 2 };
             await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardWithATitle);
                         
             BoardCreateViewModel boardWithTheSameTitle = new BoardCreateViewModel { Title = title };
@@ -117,15 +119,17 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 2 };
 
             //Act
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
 
             //Assert
-            var createdBoard = await response.Content.ReadAsAsync<BoardDTO>();
-            var id = createdBoard.BoardId.ToString();
-            response.Headers.Location.ToString().Should().Contain($"api/v1/board/{id}");
+            var createdBoardId = await response.Content.ReadAsAsync<int>();
+           
+            response.Headers.Location.ToString().Should().Contain($"api/v1/board/{createdBoardId}");
+
+            createdBoardId.Should().BeGreaterThan(0);
         }
 
         [Fact]
@@ -134,17 +138,19 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             string title = "IntegrTest" + titleGuid;
-            var createdBoard = await CreateBoardAsync( new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green });
+            var createdBoard = await CreateBoardAsync( new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 });
             
             //Act
-            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", createdBoard.BoardId.ToString()));
+            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", createdBoard.BoardId.ToString()));
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returnedBoard = await response.Content.ReadAsAsync<BoardDTO>();
-            returnedBoard.BoardId.Should().Be(createdBoard.BoardId);
-            returnedBoard.Title.Should().Be(title);
-            returnedBoard.CurrentBackgroundColorId.Should().Be((int)BgColorEnum.Green);
+            var returnedBoard = await response.Content.ReadAsAsync<BoardBgViewModel>();
+            returnedBoard.Id.Should().Be(createdBoard.BoardId);
+            returnedBoard.BgColorId.Should().Be(createdBoard.CurrentBackgroundColorId);
+            returnedBoard.Title.Should().Be(createdBoard.Title);
+            
+            returnedBoard.Should().NotBeNull();
         }
 
         [Fact]
@@ -152,14 +158,13 @@ namespace TrelloProject.IntegrationTests
         {
             //Arrange
             string dummyIdString  = DateTime.Now.Ticks.ToString().Substring(0, 9);
-            //int dummyId = Convert.ToInt32(dummyIdString);
-
+            
             //Act
             var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", dummyIdString));
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The board with ID = " + dummyIdString + " does not exist");
+            //(await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The board with ID = " + dummyIdString + " does not exist");
         }
 
         [Fact]
@@ -168,25 +173,32 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 4 };
             var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
 
             string boardLocationWithId = responsePost.Headers.Location.ToString();
             var startIndex = boardLocationWithId.LastIndexOf("/");
             var boardCreatedId = boardLocationWithId.Substring(startIndex + 1);
 
-            var responseGetById = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", boardCreatedId.ToString()));
-            var returnedBoardById = await responseGetById.Content.ReadAsAsync<BoardDTO>();
+            var responseGetById = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", boardCreatedId.ToString()));
+            var returnedBoardById = await responseGetById.Content.ReadAsAsync<BoardBgViewModel>();
 
             var updatedTitleGuid = Guid.NewGuid().ToString();
-            string updatedTitle = "IntegrTest" + updatedTitleGuid;
-            BoardDTO boardUpdated = new BoardDTO { Title = updatedTitle, CurrentBackgroundColorId = returnedBoardById.CurrentBackgroundColorId };
+            string updatedTitle = "IntegrTestUpd" + updatedTitleGuid;
+            BoardUpdateViewModel boardUpdated = new BoardUpdateViewModel { Id = returnedBoardById.Id, Title = updatedTitle, CurrentBackgroundColorId = returnedBoardById.BgColorId };
 
             //Act
-            var response = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update.Replace("{BoardId}", boardCreatedId.ToString()), boardUpdated);
+            var response = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update, boardUpdated);
+            
+            var responseGetUpdatedBoard = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", boardUpdated.Id.ToString()));
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            var returnedUpdatedBoard = await responseGetUpdatedBoard.Content.ReadAsAsync<BoardBgViewModel>();
+            returnedUpdatedBoard.Id.Should().Be(boardUpdated.Id);
+            returnedUpdatedBoard.Title.Should().Be(boardUpdated.Title);
+            returnedUpdatedBoard.BgColorId.Should().Be((int)boardUpdated.CurrentBackgroundColorId);
+            returnedUpdatedBoard.Should().NotBeNull();
         }
 
         [Fact]
@@ -195,32 +207,32 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var idDoesNotExist = DateTime.Now.Ticks.ToString().Substring(0, 9);
             string updatedTitle = "IntegrTest" + idDoesNotExist;
-            BoardDTO boardUpdated = new BoardDTO { Title = updatedTitle };
+            BoardUpdateViewModel boardUpdated = new BoardUpdateViewModel { Id = Convert.ToInt32(idDoesNotExist), Title = updatedTitle };
 
             //Act
-            var response = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update.Replace("{BoardId}", idDoesNotExist), boardUpdated);
+            var response = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update, boardUpdated);
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The item with ID=" + idDoesNotExist + " does not exist");
+            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The background color with ID = ... does not exist");
         }
-
+        
         [Fact]
         public async Task Update_ModelIsNOTValid_ReturnsBadRequestResponse()
         {
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
             var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
 
             string boardLocationWithId = responsePost.Headers.Location.ToString();
             var startIndex = boardLocationWithId.LastIndexOf("/");
             var boardCreatedId = boardLocationWithId.Substring(startIndex + 1);
 
-            var responseGetById = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", boardCreatedId.ToString()));
-                        
-            BoardDTO boardUpdated = new BoardDTO {  };
+            var notValidTitleGuid = Guid.NewGuid().ToString();
+            var notValidTitle = "IntegrTest" + notValidTitleGuid + notValidTitleGuid;
+            BoardDTO boardUpdated = new BoardDTO { Title = notValidTitle };
 
             //Act
             var response = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update.Replace("{BoardId}", boardCreatedId.ToString()), boardUpdated);
@@ -236,7 +248,7 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = BgColorEnum.Green };
+            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
             var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
 
             string boardLocationWithId = responsePost.Headers.Location.ToString();
@@ -244,10 +256,12 @@ namespace TrelloProject.IntegrationTests
             var boardCreatedId = boardLocationWithId.Substring(startIndex + 1);
 
             //Act
-            var response = await TestClient.DeleteAsync(ApiRoutes.Board.Delete.Replace("{BoardId}", boardCreatedId));
+            var response = await TestClient.DeleteAsync(ApiRoutes.Board.Delete.Replace("{id}", boardCreatedId));
+            var responseGetDeletedBoard = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", boardCreatedId));
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            (await responseGetDeletedBoard.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The board with ID = " + boardCreatedId + " does not exist");
         }
 
         [Fact]
