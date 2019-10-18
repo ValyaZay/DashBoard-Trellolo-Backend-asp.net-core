@@ -1,8 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+
+<Project Sdk="Microsoft.NET.Sdk">
+
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
+
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
@@ -27,5 +30,6 @@
   <ItemGroup>
     <ProjectReference Include="..\TrelloProject.DTOs\TrelloProject.DTOsAndViewModels.csproj" />
   </ItemGroup>
+
 
 </Project>

@@ -1,3 +1,4 @@
+
 {
   "iisSettings": {
     "windowsAuthentication": false,
@@ -5,6 +6,7 @@
     "iisExpress": {
       "applicationUrl": "http://localhost:54344",
       "sslPort": 0
+
     }
   },
   "profiles": {
@@ -18,10 +20,12 @@
     "TrelloProject": {
       "commandName": "Project",
       "launchBrowser": true,
+
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
+
     }
   }
 }

@@ -1,4 +1,5 @@
 
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +32,8 @@ namespace TrelloProject
         public void ConfigureServices(IServiceCollection services)
         {
 
+
+
             services.AddHealthChecks();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -39,6 +42,7 @@ namespace TrelloProject
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
 
             //services.AddIdentity<User, IdentityRole>(options => {
             //    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+/";
@@ -51,6 +55,7 @@ namespace TrelloProject
             services.AddIdentityUserAndIdentityRoleDALExtension()
                     .AddEntityFrameworkStoresDbContext();
 
+
             services.AddDbContextDALExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
             
             services.AddScoped<IBoardDTOService, BoardDTOService>();
@@ -60,10 +65,13 @@ namespace TrelloProject
 
             services.AddDALDependencyInjection();
 
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Trello API", Version = "v1" });
             });
+
+
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
           
@@ -105,7 +113,7 @@ namespace TrelloProject
             app.UseAuthentication();
 
             app.UseMvc();
-           
+
         }
     }
 }
