@@ -22,7 +22,7 @@ namespace TrelloProject.DAL.Extensions
             return services.RemoveAll(typeof(TrelloDbContext));
         }
 
-        public static IdentityBuilder AddEntityFrameworkStoresDbContextDALExtension(this IdentityBuilder identityBuilder)
+        public static IdentityBuilder AddEntityFrameworkStoresDbContext(this IdentityBuilder identityBuilder)
         {
             return identityBuilder.AddEntityFrameworkStores<TrelloDbContext>();
              
