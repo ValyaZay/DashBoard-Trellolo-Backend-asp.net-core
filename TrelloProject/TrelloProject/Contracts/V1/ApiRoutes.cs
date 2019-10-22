@@ -36,6 +36,9 @@ namespace TrelloProject.WEB.Contracts.V1
             public const string Register = Base + "/account/register";
 
             public const string GetRegisteredUserById = Base + "/account/{id}";
+
+            public const string Login = Base + "/account/login";
+            
         }
 
         public static class Administration

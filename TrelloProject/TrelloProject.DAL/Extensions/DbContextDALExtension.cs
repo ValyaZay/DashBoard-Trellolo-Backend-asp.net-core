@@ -30,9 +30,7 @@ namespace TrelloProject.DAL.Extensions
 
         public static IdentityBuilder AddIdentityUserAndIdentityRoleDALExtension(this IServiceCollection services)
         {
-
-            return services.AddIdentityCore<User>().AddRoles<IdentityRole>();
-
+            return services.AddIdentity<User,IdentityRole>();
         }
     }
 }

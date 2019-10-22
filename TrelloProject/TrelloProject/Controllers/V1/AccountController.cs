@@ -48,5 +48,21 @@ namespace TrelloProject.WEB.Controllers.V1
             }
             
         }
+
+        [HttpPost(ApiRoutes.Account.Login)]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<IActionResult> Login(LoginViewModel loginViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _accountService.Login(loginViewModel);
+                if (result)
+                {
+                    return Ok(loginViewModel);
+                }
+            }
+            return BadRequest("Login or password are not correct");
+        }
     }
 }

@@ -29,5 +29,16 @@ namespace TrelloProject.BLL.Services
             return createdUserId;
         }
 
+        public async Task<bool> Login(LoginViewModel loginViewModel)
+        {
+            LoginDTO loginDTO = new LoginDTO();
+
+            loginDTO.Email = loginViewModel.Email;
+            loginDTO.Password = loginViewModel.Password;
+
+            var result = await _accountRepository.Login(loginDTO);
+            return result;
+        }
+
     }
 }

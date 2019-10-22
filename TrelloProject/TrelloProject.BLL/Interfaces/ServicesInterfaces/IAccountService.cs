@@ -9,5 +9,7 @@ namespace TrelloProject.BLL.Interfaces.ServicesInterfaces
     public interface IAccountService
     {
         Task<string> CreateUser(RegisterViewModel registerViewModel);
+
+        Task<bool> Login(LoginViewModel loginViewModel);
     }
 }

@@ -102,6 +102,8 @@ namespace TrelloProject.DAL.Repositories
             Board board = new Board();
             board.Title = newBoardDTO.Title;
             board.CurrentBackgroundColorId = newBoardDTO.CurrentBackgroundColorId;
+            
+
             _trelloDbContext.Boards.Add(board);
             try
             {

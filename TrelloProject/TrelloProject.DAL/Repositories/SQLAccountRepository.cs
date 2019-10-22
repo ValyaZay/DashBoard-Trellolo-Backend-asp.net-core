@@ -13,13 +13,17 @@ namespace TrelloProject.DAL.Repositories
     internal class SQLAccountRepository : IAccountRepository
     {
         private readonly UserManager<User> _userManager;
-        public SQLAccountRepository(UserManager<User> userManager)
+        private readonly SignInManager<User> _signInManager;
+
+        public SQLAccountRepository(UserManager<User> userManager,
+                                   SignInManager<User> signInManager) 
         {
             _userManager = userManager;
+            _signInManager = signInManager;
         }
         
 
-    public async Task<string> CreateUser(RegisterDTO registerDTO)
+        public async Task<string> CreateUser(RegisterDTO registerDTO)
         {
             User user = new User();
             user.UserName = registerDTO.Email;
@@ -41,5 +45,29 @@ namespace TrelloProject.DAL.Repositories
             }
             return user.Id;
         }
+
+        public async Task<bool> Login(LoginDTO loginDTO)
+        {
+            User user = new User();
+            user.UserName = loginDTO.Email;
+            string password = loginDTO.Password;
+            try
+            {
+                SignInResult result = await _signInManager.PasswordSignInAsync(user.UserName, password, false, false);
+                
+                if (result.Succeeded)
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+
+            return false;           
+        }
     }
+
+    
 }
