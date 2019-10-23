@@ -8,37 +8,26 @@ using TrelloProject.DTOsAndViewModels.DTOs;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TrelloProject.DTOsAndViewModels.Exceptions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace TrelloProject.DAL.Repositories
 {
     internal class SQLBoardRepository : IBoardDTORepository
     {
-        private IMapper mapper;
-
+       
         private readonly TrelloDbContext _trelloDbContext;
-        private MapperConfiguration config;
+        private readonly UserManager<User> _userManager;
+
         public bool deleted = false;
 
 
-        private BoardDTO MapToBoardDTO(Board board)
-        {
-            config = new MapperConfiguration(cfg => cfg.CreateMap<Board, BoardDTO>());
-            mapper = config.CreateMapper();
-            BoardDTO boardDTO = mapper.Map<Board, BoardDTO>(board);
-            return boardDTO;
-        }
-
-        private Board MapToBoard(BoardDTO boardDTO)
-        {
-            config = new MapperConfiguration(cfg => cfg.CreateMap<BoardDTO, Board>());
-            mapper = config.CreateMapper();
-            Board board = mapper.Map<BoardDTO, Board>(boardDTO);
-            return board;
-        }
-
-        public SQLBoardRepository(TrelloDbContext trelloDbContext)
+        
+        public SQLBoardRepository(TrelloDbContext trelloDbContext,
+                                   UserManager<User> userManager)
         {
             _trelloDbContext = trelloDbContext;
+            _userManager = userManager;
         }
 
         private BackgroundColor FindBgColor(Board board)
@@ -102,8 +91,8 @@ namespace TrelloProject.DAL.Repositories
             Board board = new Board();
             board.Title = newBoardDTO.Title;
             board.CurrentBackgroundColorId = newBoardDTO.CurrentBackgroundColorId;
-            
 
+            //var userId = _userManager.GetUserId(HttpContext.User);
             _trelloDbContext.Boards.Add(board);
             try
             {
