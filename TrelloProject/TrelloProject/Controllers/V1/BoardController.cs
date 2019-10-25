@@ -49,9 +49,6 @@ namespace TrelloProject.WEB.Controllers.V1
             {
                 return BadRequest(ex.Message);
             }
-
-
-
         }
 
         //GET: api/v1/Board/5
@@ -60,16 +57,8 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(404)]
         public IActionResult GetById(int id)
         {
-            try
-            {
                 BoardBgViewModel boardBgViewModel = _boardDTOService.GetBoard(id);
                 return Ok(boardBgViewModel);
-            }
-            catch (Exception ex) //custom exception should be caught 
-            {
-                return NotFound(ex.Message);
-            }
-
         }
 
         //POST: api/v1/Board
@@ -83,27 +72,19 @@ namespace TrelloProject.WEB.Controllers.V1
             {
                 return BadRequest("Insert valid data");//object error should be returned
             }
-            try
+
+            int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
+
+            if (id == 0)
             {
-                int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
-                if (id == 0)
-                {
-                    return BadRequest("Board is not created");
-                }
-                else
-                {
-                    var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
-                    var locationUri = baseUrl + "/" + ApiRoutes.Board.GetById.Replace("{id}", id.ToString());
-                    return Created(locationUri, id);
-                }
+                return BadRequest("Board is not created");
             }
-            catch (BgColorDoesNotExistException)
+
+            else
             {
-                return NotFound("The background color with ID=" + boardCreateViewModel.CurrentBackgroundColorId + " does not exist");
-            }
-            catch (BoardTitleAlreadyExists) //custom exception should be caught 
-            {
-                return BadRequest("Board Title " + boardCreateViewModel.Title + " already exists");
+                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
+                var locationUri = baseUrl + "/" + ApiRoutes.Board.GetById.Replace("{id}", id.ToString());
+                return Created(locationUri, id);
             }
         }
 
@@ -118,31 +99,18 @@ namespace TrelloProject.WEB.Controllers.V1
             {
                 return BadRequest("Insert valid data");
             }
-            try
-            {
-                var status = _boardDTOService.UpdateBoardDTO(boardUpdateViewModel); //bool
+            
+            var status = _boardDTOService.UpdateBoardDTO(boardUpdateViewModel); //bool
 
-                if (!status)
-                {
-                    return BadRequest("Board is not updated");
-                }
-                else
-                {
-                   return NoContent();
-                }
-            }
-            catch (BgColorDoesNotExistException)
+            if (!status)
             {
-                return NotFound("The background color with ID=" + boardUpdateViewModel.CurrentBackgroundColorId + " does not exist");
+                return BadRequest("Board is not updated");
             }
-            catch (BoardTitleAlreadyExists) //custom exception should be caught 
+
+            else
             {
-                return BadRequest("Board Title " + boardUpdateViewModel.Title + " already exists");
-            }
-            catch (BoardDoesNotExistException e)
-            {
-                return NotFound(e.Message);
-            }
+                return NoContent();
+            }            
         }
 
         // DELETE: api/v1/Board/5
@@ -152,24 +120,15 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(typeof(string), 400)]
         public IActionResult Delete(int id)
         {
-            try
+            var status = _boardDTOService.DeleteBoardDTO(id);
+            if (status)
             {
-                var status = _boardDTOService.DeleteBoardDTO(id);
-                if (status)
-                {
-                    return NoContent();
-                }
-                else
-                {
-                    return BadRequest("Board is not deleted");
-                }
-                
+                return NoContent();
             }
-            catch (NullReferenceException)
+            else
             {
-                return NotFound("The item with ID=" + id + " does not exist");
+                return BadRequest("Board is not deleted");
             }
         }
-
     }
 }

@@ -14,8 +14,8 @@ using TrelloProject.BLL.Services;
 using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.DAL.Extensions;
-
-
+using TrelloProject.WEB.Infrastructure.CustomMiddlware;
+using TrelloProject.WEB.Infrastructure.Extensions;
 
 namespace TrelloProject
 {
@@ -82,6 +82,7 @@ namespace TrelloProject
         {
             app.UseHealthChecks("/health");
 
+            
 
             if (env.IsDevelopment())
             {
@@ -109,6 +110,8 @@ namespace TrelloProject
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Trello API V1");
                 c.RoutePrefix = string.Empty;
             });
+
+            app.AddApiResponseProcessingMiddleware();
 
             app.UseAuthentication();
 

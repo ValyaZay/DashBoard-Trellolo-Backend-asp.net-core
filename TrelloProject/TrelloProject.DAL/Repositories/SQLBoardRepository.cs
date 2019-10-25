@@ -17,34 +17,29 @@ namespace TrelloProject.DAL.Repositories
     {
        
         private readonly TrelloDbContext _trelloDbContext;
-        private readonly UserManager<User> _userManager;
+        //private readonly UserManager<User> _userManager;
 
         public bool deleted = false;
 
 
         
-        public SQLBoardRepository(TrelloDbContext trelloDbContext,
-                                   UserManager<User> userManager)
+        public SQLBoardRepository(TrelloDbContext trelloDbContext) //UserManager<User> userManager
         {
             _trelloDbContext = trelloDbContext;
-            _userManager = userManager;
-        }
-
-        private BackgroundColor FindBgColor(Board board)
-        {
-            return _trelloDbContext.BackgroundColors.Find(board.CurrentBackgroundColorId);
+           // _userManager = userManager;
         }
 
         public BoardBgDTO GetBoard(int id)
         {
             try
             {
-                //should be caught System.InvalidOperationException
+                
                 Board board = _trelloDbContext.Boards.Where(b => b.BoardId == id)
                                                      .Include(b => b.BackgroundColor)
                                                      .AsNoTracking()
                                                      .FirstOrDefault();
-                //BackgroundColor bgColor = FindBgColor(board);
+                
+
                 BoardBgDTO boardBgDTO = new BoardBgDTO();
 
                 boardBgDTO.Id = board.BoardId;
@@ -54,12 +49,10 @@ namespace TrelloProject.DAL.Repositories
                 boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
                 return boardBgDTO;
             }
-            catch (Exception e)
+            catch(Exception innerEx)
             {
-                throw new BoardDoesNotExistException(e.Message);//throw custom repo-ex
+                throw new ApiException(404, innerEx, 6);
             }
-
-            
         }
 
         public List<BoardBgDTO> GetAllBoards()
@@ -99,9 +92,9 @@ namespace TrelloProject.DAL.Repositories
                 _trelloDbContext.SaveChanges();
             }
             
-            catch (Exception)
+            catch (Exception innerEx)
             {
-                throw new BoardTitleAlreadyExists();//throw custom repo-ex
+                throw new ApiException(400, innerEx, 1);
             }
             return board.BoardId;
         }
@@ -120,9 +113,9 @@ namespace TrelloProject.DAL.Repositories
             {
                 return (_trelloDbContext.SaveChanges() > 0 ? true : false);
             }
-            catch (Exception)
+            catch (Exception innerEx)
             {
-                throw new BoardTitleAlreadyExists();//throw custom repo-ex
+                throw new ApiException(400, innerEx, 2);
             }
         }
 
@@ -143,9 +136,9 @@ namespace TrelloProject.DAL.Repositories
                 }
                  
             }
-            catch (Exception)
+            catch (Exception innerEx)
             {
-                throw new Exception();
+                throw new ApiException(400, innerEx, 7);
             }
             
             
