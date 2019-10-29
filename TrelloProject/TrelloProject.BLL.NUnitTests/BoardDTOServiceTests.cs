@@ -141,7 +141,7 @@ namespace TrelloProject.BLL.Tests
             //Act
 
             //Assert
-            Assert.Throws<BoardIsNotCreated>(() => boardDTOService.CreateBoardDTO(boardCreateViewModel));
+           
 
         }
 

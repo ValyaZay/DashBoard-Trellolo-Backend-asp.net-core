@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -14,6 +17,7 @@ using TrelloProject.DTOsAndViewModels.DTOs;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.WEB.Contracts.V1;
 using TrelloProject.WEB.Controllers.V1;
+using TrelloProject.WEB.Infrastructure.ApiResponse;
 using Xunit;
 
 namespace TrelloProject.IntegrationTests
@@ -138,19 +142,31 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             string title = "IntegrTest" + titleGuid;
-            var createdBoard = await CreateBoardAsync( new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 });
+            BoardCreateViewModel model = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
             
+            var responseMessagePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, model);
+            var jsonStringPost = await responseMessagePost.Content.ReadAsStringAsync();
+            var apiResponsePost = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringPost);
+
+            string urlOfCreatedBoard = apiResponsePost.Result.ToString();
+            int slashIndex = urlOfCreatedBoard.LastIndexOf("/");
+            string id = urlOfCreatedBoard.Substring(slashIndex + 1); 
+
             //Act
-            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", createdBoard.BoardId.ToString()));
+            var responseMessageGet = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", id));
+            var jsonStringGet = await responseMessageGet.Content.ReadAsStringAsync();
+            var apiResponseGet = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringGet);
+
+            var jsonStringResult = apiResponseGet.Result.ToString();
+            var apiResult = JsonConvert.DeserializeObject<BoardBgViewModel>(jsonStringResult);
 
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returnedBoard = await response.Content.ReadAsAsync<BoardBgViewModel>();
-            returnedBoard.Id.Should().Be(createdBoard.BoardId);
-            returnedBoard.BgColorId.Should().Be(createdBoard.CurrentBackgroundColorId);
-            returnedBoard.Title.Should().Be(createdBoard.Title);
-            
-            returnedBoard.Should().NotBeNull();
+            responseMessageGet.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            apiResult.Id.Should().Be(Convert.ToInt32(id));
+            apiResponseGet.StatusCode.Should().Be(200);
+            apiResponseGet.CustomCode.Should().Be(0);
+            apiResponseGet.Should().NotBeNull();
         }
 
         [Fact]
@@ -164,7 +180,7 @@ namespace TrelloProject.IntegrationTests
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            //(await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The board with ID = " + dummyIdString + " does not exist");
+            
         }
 
         [Fact]

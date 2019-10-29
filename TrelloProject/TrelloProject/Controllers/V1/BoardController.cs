@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using TrelloProject.WEB.Contracts.V1;
 using TrelloProject.DTOsAndViewModels.Exceptions;
+using System.Threading.Tasks;
+using TrelloProject.WEB.Infrastructure.ApiResponse;
+using Microsoft.AspNetCore.Http;
 
 namespace TrelloProject.WEB.Controllers.V1
 {
@@ -27,108 +30,58 @@ namespace TrelloProject.WEB.Controllers.V1
         // GET: api/v1/Board
 
         [HttpGet(ApiRoutes.Board.GetAll)]
-        [ProducesResponseType(typeof(List<BoardBgViewModel>), 200)]
-        [ProducesResponseType(400)]
-        public IActionResult Get()
+        [ProducesResponseType(typeof(ApiResponseSuccess), 200)]
+        [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
+        public ApiResponseSuccess Get()
         {
-            try
-            {
-                var boardBgViewModels = _boardDTOService.GetAllBoards();
-                int boardsCount = boardBgViewModels.Count();
-                if (boardsCount == 0)
-                {
-                    return Ok("There are no boards created.");
-                }
-                else
-                {
-                    return Ok(boardBgViewModels);
+            List <BoardBgViewModel> boardList = _boardDTOService.GetAllBoards();
+            return new ApiResponseSuccess(200, 0, boardList);
 
-                }
-            }
-            catch (Exception ex) //custom exception should be caught
-            {
-                return BadRequest(ex.Message);
-            }
         }
 
         //GET: api/v1/Board/5
         [HttpGet(ApiRoutes.Board.GetById)]
-        [ProducesResponseType(typeof(BoardBgViewModel), 200)]
-        [ProducesResponseType(404)]
-        public IActionResult GetById(int id)
+        [ProducesResponseType(typeof(ApiResponseSuccess), 200)]
+        [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
+        public ApiResponseSuccess GetById(int id)
         {
-                BoardBgViewModel boardBgViewModel = _boardDTOService.GetBoard(id);
-                return Ok(boardBgViewModel);
+            BoardBgViewModel board = _boardDTOService.GetBoard(id);
+            return new ApiResponseSuccess(200, 0, board);
         }
 
         //POST: api/v1/Board
         [HttpPost(ApiRoutes.Board.Create)]
-        [ProducesResponseType(typeof(int), 201)]
-        [ProducesResponseType(typeof(string), 404)]
-        [ProducesResponseType(typeof(string), 400)]
-        public IActionResult Create([FromBody] BoardCreateViewModel boardCreateViewModel)
+        [ProducesResponseType(typeof(ApiResponseSuccess), 200)]
+        [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
+        public ApiResponseSuccess Create([FromBody] BoardCreateViewModel boardCreateViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Insert valid data");//object error should be returned
-            }
-
             int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
 
-            if (id == 0)
-            {
-                return BadRequest("Board is not created");
-            }
-
-            else
-            {
-                var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
-                var locationUri = baseUrl + "/" + ApiRoutes.Board.GetById.Replace("{id}", id.ToString());
-                return Created(locationUri, id);
-            }
+            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
+            var locationUri = baseUrl + "/" + ApiRoutes.Board.GetById.Replace("{id}", id.ToString());
+            
+            return new ApiResponseSuccess(201, 11, locationUri);
         }
 
         // PUT: api/v1/Board/5
         [HttpPut(ApiRoutes.Board.Update)]
-        [ProducesResponseType(typeof(int), 204)]
-        [ProducesResponseType(typeof(string), 404)]
-        [ProducesResponseType(typeof(string), 400)]
-        public IActionResult Update([FromBody] BoardUpdateViewModel boardUpdateViewModel)
+        [ProducesResponseType(typeof(ApiResponseSuccess), 200)]
+        [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
+        public ApiResponseSuccess Update([FromBody] BoardUpdateViewModel boardUpdateViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Insert valid data");
-            }
-            
-            var status = _boardDTOService.UpdateBoardDTO(boardUpdateViewModel); //bool
-
-            if (!status)
-            {
-                return BadRequest("Board is not updated");
-            }
-
-            else
-            {
-                return NoContent();
-            }            
+            var status = _boardDTOService.UpdateBoardDTO(boardUpdateViewModel); 
+            return new ApiResponseSuccess(204, 12, status.ToString());
         }
 
         // DELETE: api/v1/Board/5
         [HttpDelete(ApiRoutes.Board.Delete)]
-        [ProducesResponseType(typeof(int), 204)]
-        [ProducesResponseType(typeof(string), 404)]
-        [ProducesResponseType(typeof(string), 400)]
-        public IActionResult Delete(int id)
+        [ProducesResponseType(typeof(ApiResponseSuccess), 200)]
+        [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
+        public ApiResponseSuccess Delete(int id)
         {
             var status = _boardDTOService.DeleteBoardDTO(id);
-            if (status)
-            {
-                return NoContent();
-            }
-            else
-            {
-                return BadRequest("Board is not deleted");
-            }
+            return new ApiResponseSuccess(204, 13, status.ToString());
+
         }
     }
 }

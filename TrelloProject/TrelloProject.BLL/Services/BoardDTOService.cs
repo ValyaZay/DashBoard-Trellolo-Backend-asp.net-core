@@ -35,6 +35,7 @@ namespace TrelloProject.BLL.Services
                 newBoardDTO.CurrentBackgroundColorId = bgColorId;
                 createdBoardId = _boardRepository.Create(newBoardDTO);
             }
+            
             catch (Exception innerEx)
             {
                 throw new ApiException(400, innerEx, 1);
@@ -137,9 +138,9 @@ namespace TrelloProject.BLL.Services
                 return status;
             }
             
-            catch (Exception innerEx)
+            catch (Exception)
             {
-                throw new ApiException(400, innerEx, 4);
+                throw new ApiException(400, new Exception ("Board title already exists.") , 4);
             }
             
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
@@ -10,6 +11,7 @@ using TrelloProject.DAL.Extensions;
 using TrelloProject.DTOsAndViewModels.DTOs;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.WEB.Contracts.V1;
+using TrelloProject.WEB.Infrastructure.ApiResponse;
 
 namespace TrelloProject.IntegrationTests
 {
@@ -26,13 +28,7 @@ namespace TrelloProject.IntegrationTests
             
         }
 
-        
-
-        protected async Task<BoardDTO> CreateBoardAsync(BoardCreateViewModel boardCreateViewModel)
-        {
-            var response =  await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
-            return await response.Content.ReadAsAsync<BoardDTO>();
-        }
+       
     }
 
 }

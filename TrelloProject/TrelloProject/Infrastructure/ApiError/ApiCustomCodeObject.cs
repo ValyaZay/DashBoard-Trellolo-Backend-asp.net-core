@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace TrelloProject.WEB.Infrastructure.ApiError
 {
-    public class ApiErrorObject
+    public class ApiCustomCodeObject
     {
-        public int? ErrorCode { get; set; }
+        public int? CustomCode { get; set; }
         public string Message { get; set; }
 
     }

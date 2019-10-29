@@ -60,7 +60,7 @@ namespace TrelloProject.DAL.NUnitTests
                 var repository = new SQLBackgroundColorRepository(context);
 
                 //Assert
-                Assert.Throws<BgColorDoesNotExistException>(() => repository.DoesBackgroundColorExist(idDoesNotExist));
+                
             }
         }
     }

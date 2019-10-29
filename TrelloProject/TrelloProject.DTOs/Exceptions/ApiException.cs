@@ -8,6 +8,7 @@ namespace TrelloProject.DTOsAndViewModels.Exceptions
     {
         public int StatusCode { get; set; }
         //add message here to throw it with apiException and show it
+
         public int ErrorCode { get; set; }
 
         public ApiException(int statuscode, Exception ex, int errorcode)
