@@ -23,5 +23,10 @@ namespace TrelloProject.WEB.Infrastructure.ApiResponse
             StatusCode = statuscode;
             CustomCode = customCode;
         }
+
+        public ApiResponseNotSuccess()
+        {
+
+        }
     }
 }

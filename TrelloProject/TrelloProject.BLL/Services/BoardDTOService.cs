@@ -137,7 +137,10 @@ namespace TrelloProject.BLL.Services
                 var status = _boardRepository.Update(boardDTO);
                 return status;
             }
-            
+            catch(ApiException ex)
+            {
+                throw ex;
+            }
             catch (Exception)
             {
                 throw new ApiException(400, new Exception ("Board title already exists.") , 4);

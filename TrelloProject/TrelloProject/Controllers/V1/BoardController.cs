@@ -55,6 +55,10 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
         public ApiResponseSuccess Create([FromBody] BoardCreateViewModel boardCreateViewModel)
         {
+            if(!ModelState.IsValid)
+            {
+                throw new ApiException(400, 3);
+            }
             int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
@@ -69,6 +73,10 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
         public ApiResponseSuccess Update([FromBody] BoardUpdateViewModel boardUpdateViewModel)
         {
+            if (!ModelState.IsValid)
+            {
+                throw new ApiException(400, 3);
+            }
             var status = _boardDTOService.UpdateBoardDTO(boardUpdateViewModel); 
             return new ApiResponseSuccess(204, 12, status.ToString());
         }

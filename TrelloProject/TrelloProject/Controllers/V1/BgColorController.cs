@@ -7,6 +7,7 @@ using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.WEB.Contracts.V1;
+using TrelloProject.WEB.Infrastructure.ApiResponse;
 
 namespace TrelloProject.WEB.Controllers.V1
 {
@@ -23,9 +24,10 @@ namespace TrelloProject.WEB.Controllers.V1
         [HttpGet(ApiRoutes.BackgroundColor.GetAll)]
         [ProducesResponseType(typeof(List<BgColorViewModel>), 200)]
         
-        public List<BgColorViewModel> Get()
+        public ApiResponseSuccess Get()
         {
-            return backgroundColorDTOService.GetAllBgColors();
+            List<BgColorViewModel> bgList = backgroundColorDTOService.GetAllBgColors();
+            return new ApiResponseSuccess(200, 0, bgList); 
         }
     }
 }
