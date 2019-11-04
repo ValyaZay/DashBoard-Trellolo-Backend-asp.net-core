@@ -1,5 +1,6 @@
 
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -8,12 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.BLL.Services;
 using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.DAL.Extensions;
+using TrelloProject.DTOsAndViewModels.JWTauthentication;
 using TrelloProject.WEB.Infrastructure.CustomMiddlware;
 using TrelloProject.WEB.Infrastructure.Extensions;
 
@@ -31,9 +37,6 @@ namespace TrelloProject
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-
-
             services.AddHealthChecks();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -43,15 +46,6 @@ namespace TrelloProject
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
-            //services.AddIdentity<User, IdentityRole>(options => {
-            //    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+/";
-            //})
-            
-            //services.AddIdentity<User, IdentityRole>()
-            //        .AddEntityFrameworkStores<TrelloDbContext>();
-
-            
             services.AddIdentityUserAndIdentityRoleDALExtension()
                     .AddEntityFrameworkStoresDbContext();
 
@@ -65,13 +59,53 @@ namespace TrelloProject
 
             services.AddDALDependencyInjection();
 
+            var jwtSettings = new JwtSettings();
+            Configuration.Bind(nameof(jwtSettings), jwtSettings);
+            services.AddSingleton(nameof(jwtSettings));
+
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Trello API", Version = "v1" });
+
+                var security = new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new String[0] }
+                };
+
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using bearer scheme",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                c.AddSecurityRequirement(security);
             });
 
+            
 
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(x =>
+
+                {
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        RequireExpirationTime = false,
+                        ValidateLifetime = true
+                    };
+                });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
           

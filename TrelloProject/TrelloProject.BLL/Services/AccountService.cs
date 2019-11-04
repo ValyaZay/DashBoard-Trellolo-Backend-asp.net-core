@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using TrelloProject.DTOsAndViewModels.Exceptions;
+using TrelloProject.DTOsAndViewModels.JWTauthentication;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 
 namespace TrelloProject.BLL.Services
@@ -17,7 +19,7 @@ namespace TrelloProject.BLL.Services
             _accountRepository = accountRepository;
         }
 
-        public async Task<string> CreateUser(RegisterViewModel registerViewModel)
+        public async Task<AuthenticationResult> CreateUser(RegisterViewModel registerViewModel)
         {
             RegisterDTO registerDTO = new RegisterDTO();
             registerDTO.Email = registerViewModel.Email;
@@ -25,8 +27,14 @@ namespace TrelloProject.BLL.Services
             registerDTO.LastName = registerViewModel.LastName;
             registerDTO.Password = registerViewModel.Password;
 
-            var createdUserId = await _accountRepository.CreateUser(registerDTO);
-            return createdUserId;
+            try
+            {
+                return await _accountRepository.CreateUser(registerDTO);
+            }
+            catch (Exception innerEx)
+            {
+                throw new ApiException(400, innerEx, 16);
+            }
         }
 
         public async Task<bool> Login(LoginViewModel loginViewModel)

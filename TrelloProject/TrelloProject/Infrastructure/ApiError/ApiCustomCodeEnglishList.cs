@@ -35,7 +35,9 @@ namespace TrelloProject.WEB.Infrastructure.ApiError
                     new ApiCustomCodeObject{ CustomCode = 11, Message = "Board is created."},
                     new ApiCustomCodeObject{ CustomCode = 12, Message = "Board is updated."},
                     new ApiCustomCodeObject{ CustomCode = 13, Message = "Board is deleted."},
-                    new ApiCustomCodeObject{ CustomCode = 14, Message = "Internal server error"}
+                    new ApiCustomCodeObject{ CustomCode = 14, Message = "Internal server error"},
+                    new ApiCustomCodeObject{ CustomCode = 15, Message = "User is registered successfully."},
+                    new ApiCustomCodeObject{ CustomCode = 16, Message = "User is not registered."}
                 };
         }
         

@@ -12,11 +12,13 @@ using TrelloProject.DTOsAndViewModels.Exceptions;
 using System.Threading.Tasks;
 using TrelloProject.WEB.Infrastructure.ApiResponse;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace TrelloProject.WEB.Controllers.V1
 {
     [Produces("application/json")]
-
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BoardController : Controller
     {
         private readonly IBoardDTOService _boardDTOService;
@@ -28,7 +30,7 @@ namespace TrelloProject.WEB.Controllers.V1
 
 
         // GET: api/v1/Board
-
+        
         [HttpGet(ApiRoutes.Board.GetAll)]
         [ProducesResponseType(typeof(ApiResponseSuccess), 200)]
         [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
