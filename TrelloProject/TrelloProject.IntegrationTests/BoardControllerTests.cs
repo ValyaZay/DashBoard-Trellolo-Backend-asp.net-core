@@ -23,7 +23,7 @@ using Xunit;
 
 namespace TrelloProject.IntegrationTests
 {
-    public class BoardControllerTests : IntegrationTestBaseClass 
+    public class BoardControllerTests : IntegrationTestBaseClass, IDisposable
     {
         
         [Fact]
@@ -48,37 +48,24 @@ namespace TrelloProject.IntegrationTests
             apiResponseGet.Should().NotBeNull();
         }
 
-        private HttpClient TestClientInMemory;
         [Fact]
         public async Task Get_IfTheDBIsEmpty_ReturnsOK()
         {
             // Arrange
-            var appFactory = new WebApplicationFactory<Startup>()
-                .WithWebHostBuilder(builder =>
-                {
-                    builder.ConfigureServices(services =>
-                    {
-                        services.RemoveAll(typeof(TrelloDbContext));
-                        services.AddDbContext<TrelloDbContext>(options =>
-                        {
-                            options.UseInMemoryDatabase("Get_IfTheDBIsEmpty_ReturnsOKResponseWithMessage");
-                        });
-                    });
-                });
-            TestClientInMemory = appFactory.CreateClient();
+           
 
             // Act
-            var responseMessageGet = await TestClientInMemory.GetAsync(ApiRoutes.Board.GetAll);
+            var responseMessageGet = await TestClient.GetAsync(ApiRoutes.Board.GetAll);
             var jsonStringGet = await responseMessageGet.Content.ReadAsStringAsync();
             var apiResponseGet = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringGet);
 
             var jsonStringResult = apiResponseGet.Result.ToString();
             var apiResult = JsonConvert.DeserializeObject<List<BoardBgViewModel>>(jsonStringResult);
-            int apiResultCount = apiResult.Count;
+            //int apiResultCount = apiResult.Count;
 
             // Assert
             apiResult.Should().BeOfType<List<BoardBgViewModel>>();
-            apiResult.Should().HaveCount(apiResultCount);
+            apiResult.Should().HaveCount(0);
             apiResponseGet.StatusCode.Should().Be(200);
             apiResponseGet.CustomCode.Should().Be(0);
             apiResponseGet.Should().NotBeNull();
@@ -318,6 +305,13 @@ namespace TrelloProject.IntegrationTests
             apiResponse.StatusCode.Should().Be(404);
             apiResponse.CustomCode.Should().Be(6);
             apiResponse.CustomCodeMessage.Should().Contain("not exist");
+        }
+
+        
+        public void Dispose()
+        {
+            var _context = GetContext();
+            _context.Database.EnsureDeleted(); // where to get context 
         }
     }
 }

@@ -20,6 +20,7 @@ namespace TrelloProject.DAL.Repositories
         public SQLBackgroundColorRepository(TrelloDbContext trelloDbContext)
         {
             _trelloDbContext = trelloDbContext;
+            
         }
 
         private BackgroundColorDTO MapToBgColorDTO(BackgroundColor backgroundColor)

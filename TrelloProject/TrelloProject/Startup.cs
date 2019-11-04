@@ -55,8 +55,8 @@ namespace TrelloProject
             services.AddIdentityUserAndIdentityRoleDALExtension()
                     .AddEntityFrameworkStoresDbContext();
 
-
-            services.AddDbContextDALExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
+            var connectionString = Configuration.GetConnectionString("TrelloDBConnection");
+            services.AddDbContextDALExtension(options => options.UseSqlServer(connectionString));
             
             services.AddScoped<IBoardDTOService, BoardDTOService>();
             services.AddScoped<IBackgroundColorDTOService, BackgroundColorDTOService>();
@@ -80,9 +80,11 @@ namespace TrelloProject
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            ConfigurateSeedDatabase(app);
+           
+
             app.UseHealthChecks("/health");
 
-            
 
             if (env.IsDevelopment())
             {
@@ -117,6 +119,13 @@ namespace TrelloProject
 
             app.UseMvc();
             
+        }
+
+        public virtual IApplicationBuilder ConfigurateSeedDatabase(IApplicationBuilder app)
+        {
+            app.MigrateAndSeedDatabase();
+
+            return app;
         }
     }
 }

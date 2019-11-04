@@ -306,68 +306,6 @@ namespace TrelloProject.DAL.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[,]
-                {
-                    { "1", 0, "ab9dd962-6812-4ed8-bcc1-efb583a80d72", "valya@valya.net", false, "Valya", "Zay", false, null, null, null, null, null, false, null, false, null },
-                    { "2", 0, "9beec757-76af-40c8-9508-3b2413b0d8c8", "vova@vova.com", false, "Vova", "Petrov", false, null, null, null, null, null, false, null, false, null },
-                    { "3", 0, "d5f4cefc-ecee-4f0e-a69f-6134b219aed9", "gora@gora.net", false, "Gora", "Sidorov", false, null, null, null, null, null, false, null, false, null }
-                });
-
-            migrationBuilder.InsertData(
-                table: "BackgroundColors",
-                columns: new[] { "BackgroundColorId", "ColorHex", "ColorName" },
-                values: new object[,]
-                {
-                    { 1, "#C0C0C0", "Grey" },
-                    { 2, "#ffff00", "Yellow" },
-                    { 3, "#FFA500", "Orange" },
-                    { 4, "#0000FF", "Blue" },
-                    { 5, "#008000", "Green" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Boards",
-                columns: new[] { "BoardId", "CurrentBackgroundColorId", "Title" },
-                values: new object[] { 1, 1, "ManagerBoard" });
-
-            migrationBuilder.InsertData(
-                table: "CardLists",
-                columns: new[] { "CardListId", "BoardId", "Order", "Title" },
-                values: new object[,]
-                {
-                    { 1, 1, 0, "ToDo" },
-                    { 2, 1, 1, "Done" },
-                    { 3, 1, 2, "DoNOTDo" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "UserBoards",
-                columns: new[] { "UserId", "BoardId" },
-                values: new object[] { "2", 1 });
-
-            migrationBuilder.InsertData(
-                table: "Cards",
-                columns: new[] { "CardId", "AssigneeId", "CardListId", "CreatedById", "CreatedDate", "Description", "Hidden", "Title" },
-                values: new object[] { 1, "2", 1, "1", new DateTime(2019, 8, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), "Just create a new task", false, "Create a task" });
-
-            migrationBuilder.InsertData(
-                table: "Cards",
-                columns: new[] { "CardId", "AssigneeId", "CardListId", "CreatedById", "CreatedDate", "Description", "Hidden", "Title" },
-                values: new object[] { 2, "3", 1, "1", new DateTime(2019, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Implement INewInterface now", false, "Implement an Interface" });
-
-            migrationBuilder.InsertData(
-                table: "CardComments",
-                columns: new[] { "CardCommentId", "CardId", "CreatedById", "CreatedDate", "RefersToId", "Text" },
-                values: new object[] { 1, 1, "2", new DateTime(2019, 2, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Good comment" });
-
-            migrationBuilder.InsertData(
-                table: "CardComments",
-                columns: new[] { "CardCommentId", "CardId", "CreatedById", "CreatedDate", "RefersToId", "Text" },
-                values: new object[] { 2, 1, "2", new DateTime(2019, 4, 18, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, "Bad comment" });
-
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
