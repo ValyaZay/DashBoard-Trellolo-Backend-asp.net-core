@@ -23,13 +23,17 @@ namespace TrelloProject.WEB.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Account.Register)]
-        [ProducesResponseType(typeof(int), 201)]
+        [ProducesResponseType(typeof(int), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<ApiResponseSuccess> Create([FromBody] RegisterViewModel registerViewModel)
+        public async Task<ApiResponseBase> Create([FromBody] RegisterViewModel registerViewModel)
         {
             if (!ModelState.IsValid)
             {
-                throw new ApiException(400, 3);
+                AuthFail modelError = new AuthFail
+                {
+                    Errors =  ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                };
+                throw new ApiException(400, 3, modelError);
             }
             var authResponse = await _accountService.CreateUser(registerViewModel);
             if (!authResponse.Success)
@@ -39,26 +43,36 @@ namespace TrelloProject.WEB.Controllers.V1
                     Errors = authResponse.Errors
                 };
 
-                return new ApiResponseSuccess(200, 16, fail);
+                return new ApiResponseBase(400, 16, fail);
             }
-            return new ApiResponseSuccess(200, 15, new AuthSuccess { Token = authResponse.Token });
+            return new ApiResponseBase(200, 15, new AuthSuccess { Token = authResponse.Token });
             
         }
 
         [HttpPost(ApiRoutes.Account.Login)]
         [ProducesResponseType(typeof(int), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<IActionResult> Login(LoginViewModel loginViewModel)
+        public async Task<ApiResponseBase> Login(LoginViewModel loginViewModel)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = await _accountService.Login(loginViewModel);
-                if (result)
+                AuthFail modelError = new AuthFail
                 {
-                    return Ok(loginViewModel);
-                }
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                };
+                throw new ApiException(400, 3, modelError);
             }
-            return BadRequest("Login or password are not correct");
+            var authResponse = await _accountService.Login(loginViewModel);
+            if (!authResponse.Success)
+            {
+                AuthFail fail = new AuthFail()
+                {
+                    Errors = authResponse.Errors
+                };
+
+                return new ApiResponseBase(400, 18, fail);
+            }
+            return new ApiResponseBase(200, 17, new AuthSuccess { Token = authResponse.Token });
         }
     }
 }

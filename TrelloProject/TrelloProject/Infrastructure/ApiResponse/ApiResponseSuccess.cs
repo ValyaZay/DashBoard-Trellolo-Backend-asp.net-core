@@ -8,8 +8,6 @@ namespace TrelloProject.WEB.Infrastructure.ApiResponse
 {
     public class ApiResponseSuccess : ApiResponseBase
     {
-        public object Result { get; set; }
-
         public ApiResponseSuccess(int statusCode, int customCode, string customCodeMessage, object result)
         {
             StatusCode = statusCode;

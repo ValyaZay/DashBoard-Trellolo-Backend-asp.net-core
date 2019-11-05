@@ -6,6 +6,11 @@ namespace TrelloProject.DAL.Entities
 {
     internal class Board
     {
+        public Board() {
+            this.UserBoards = new List<UserBoard>();
+            this.CardLists = new List<CardList>();
+        }
+
         public int BoardId { get; set; }
         public string Title { get; set; }
 

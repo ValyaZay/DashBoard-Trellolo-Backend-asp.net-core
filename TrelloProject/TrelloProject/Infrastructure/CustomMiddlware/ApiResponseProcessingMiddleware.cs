@@ -62,12 +62,14 @@ namespace TrelloProject.WEB.Infrastructure.CustomMiddlware
             
             int statusCode = 0;
             int customCode = 0;
+            object result = null;
             if(exception is ApiException)
             {
                 var ex = exception as ApiException;
                 customCode = ex.ErrorCode;
                 statusCode = ex.StatusCode;
                 context.Response.StatusCode = statusCode;
+                result = ex.ModelError;
             }
             else
             {
@@ -98,7 +100,7 @@ namespace TrelloProject.WEB.Infrastructure.CustomMiddlware
                 return context.Response.WriteAsync(jsond);
             }
 
-            ApiResponseNotSuccess apiResponse = new ApiResponseNotSuccess(statusCode, exception.Message, customCode, customCodeMessage);
+            ApiResponseNotSuccess apiResponse = new ApiResponseNotSuccess(statusCode, exception.Message, customCode, customCodeMessage, result);
             var json = JsonConvert.SerializeObject(apiResponse);
             context.Response.ContentType = "application/json";
             return context.Response.WriteAsync(json);

@@ -6,7 +6,7 @@ namespace TrelloProject.DAL.Entities
 {
     internal class UserBoard
     {
-        
+
         public string UserId { get; set; }
         public User User { get; set; }
         

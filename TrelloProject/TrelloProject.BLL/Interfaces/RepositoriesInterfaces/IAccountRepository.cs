@@ -10,6 +10,6 @@ namespace TrelloProject.BLL.Interfaces.RepositoriesInterfaces
     public interface IAccountRepository
     {
         Task<AuthenticationResult> CreateUser(RegisterDTO registerDTO);
-        Task<bool> Login(LoginDTO loginDTO);
+        Task<AuthenticationResult> Login(LoginDTO loginDTO);
     }
 }

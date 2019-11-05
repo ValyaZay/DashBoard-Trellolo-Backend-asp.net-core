@@ -34,7 +34,7 @@ namespace TrelloProject.BLL.Tests
             //Arrange
             var mock = new Mock<IBoardDTORepository>();
             var mockBg = new Mock<IBackgroundColorDTORepository>();
-            mock.Setup(a => a.GetAllBoards()).Returns(list);
+            mock.Setup(a => a.GetAllBoards("userId")).Returns(list);
             BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
 
             //Act
@@ -50,11 +50,11 @@ namespace TrelloProject.BLL.Tests
             //Arrange
             var mock = new Mock<IBoardDTORepository>();
             var mockBg = new Mock<IBackgroundColorDTORepository>();
-            mock.Setup(a => a.GetAllBoards()).Returns(new List<BoardBgDTO>());
+            mock.Setup(a => a.GetAllBoards("userId")).Returns(new List<BoardBgDTO>());
             BoardDTOService boardDTOService = new BoardDTOService(mock.Object, mockBg.Object);
             
             //Act
-            var result = boardDTOService.GetAllBoards();
+            var result = boardDTOService.GetAllBoards("userId");
             
 
             //Assert
@@ -99,7 +99,7 @@ namespace TrelloProject.BLL.Tests
             BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel();
             
 
-            mock.Setup(a => a.Create(boardDTO))
+            mock.Setup(a => a.Create(boardDTO, "userId"))
                 .Returns(id);
 
             mockBg
@@ -110,7 +110,7 @@ namespace TrelloProject.BLL.Tests
             
             //Act
             
-            var result = boardDTOService.CreateBoardDTO(boardCreateViewModel);
+            var result = boardDTOService.CreateBoardDTO(boardCreateViewModel, "userId");
             
             
             //Assert
@@ -129,7 +129,7 @@ namespace TrelloProject.BLL.Tests
             BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel() ;
             
             mock
-                .Setup(a => a.Create(boardDTO))
+                .Setup(a => a.Create(boardDTO, "userId"))
                 .Returns(It.IsAny<int>);
 
             mockBg

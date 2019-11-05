@@ -21,7 +21,6 @@ namespace TrelloProject.DAL.Repositories
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly JwtSettings _jwtSettings;
         private readonly IConfiguration _configuration;
 
         public SQLAccountRepository(UserManager<User> userManager,
@@ -57,9 +56,9 @@ namespace TrelloProject.DAL.Repositories
 
             try
             {
-                IdentityResult result = await _userManager.CreateAsync(user, password); 
-                
-                if(!result.Succeeded)
+                IdentityResult result = await _userManager.CreateAsync(user, password);
+
+                if (!result.Succeeded)
                 {
                     return new AuthenticationResult
                     {
@@ -68,32 +67,7 @@ namespace TrelloProject.DAL.Repositories
                 }
 
                 await _userManager.AddToRoleAsync(user, "User");
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jwtSettingsFromConfig = _configuration.GetSection("JwtSettings").Get<JwtSettings>();
-
-                var key = Encoding.ASCII.GetBytes(jwtSettingsFromConfig.Secret);
-
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                        new Claim("id", user.Id)
-                    }),
-                    Expires = DateTime.UtcNow.AddHours(2),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                };
-
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-
-                return new AuthenticationResult
-                {
-                    Success = true,
-                    Token = tokenHandler.WriteToken(token),
-                };
+                return GenerateAuthenticationResultForUser(user);
             }
             catch (Exception innerEx)
             {
@@ -101,26 +75,58 @@ namespace TrelloProject.DAL.Repositories
             }
         }
 
-        public async Task<bool> Login(LoginDTO loginDTO)
+        private AuthenticationResult GenerateAuthenticationResultForUser(User user)
         {
-            User user = new User();
-            user.UserName = loginDTO.Email;
-            string password = loginDTO.Password;
-            try
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSettingsFromConfig = _configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+            var key = Encoding.ASCII.GetBytes(jwtSettingsFromConfig.Secret);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                SignInResult result = await _signInManager.PasswordSignInAsync(user.UserName, password, false, false);
-                
-                if (result.Succeeded)
+                Subject = new ClaimsIdentity(new[]
                 {
-                    return true;
-                }
-            }
-            catch (Exception)
+                        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                        new Claim("id", user.Id)
+                    }),
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return new AuthenticationResult
             {
+                Success = true,
+                Token = tokenHandler.WriteToken(token),
+            };
+        }
 
+        public async Task<AuthenticationResult> Login(LoginDTO loginDTO)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(loginDTO.Email);
+
+            if (existingUser == null)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "User with this email does not exist" }
+                };
             }
 
-            return false;           
+            var userHasValidPassword = await _userManager.CheckPasswordAsync(existingUser, loginDTO.Password);
+
+            if (!userHasValidPassword)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "User/password combination is wrong" }
+                };
+            }
+
+            return GenerateAuthenticationResultForUser(existingUser);
         }
     }
 

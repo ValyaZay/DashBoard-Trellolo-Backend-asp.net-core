@@ -22,8 +22,12 @@ namespace TrelloProject.BLL.Services
             _backgroundColorDTORepository = backgroundColorDTORepository;
         }
 
-        public int CreateBoardDTO(BoardCreateViewModel boardCreateViewModel)
+        public int CreateBoardDTO(BoardCreateViewModel boardCreateViewModel, string userId)
         {
+            if (userId == null)
+            {
+                throw new ApiException(400, 19);
+            }
             BoardDTO newBoardDTO = new BoardDTO();
             newBoardDTO.Title = boardCreateViewModel.Title;
             int bgColorId = (boardCreateViewModel.CurrentBackgroundColorId != 0) ? boardCreateViewModel.CurrentBackgroundColorId : 1;
@@ -33,7 +37,7 @@ namespace TrelloProject.BLL.Services
             {
                 _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
                 newBoardDTO.CurrentBackgroundColorId = bgColorId;
-                createdBoardId = _boardRepository.Create(newBoardDTO);
+                createdBoardId = _boardRepository.Create(newBoardDTO, userId);
             }
             
             catch (Exception innerEx)
@@ -66,11 +70,11 @@ namespace TrelloProject.BLL.Services
             }
         }
 
-        public List<BoardBgViewModel> GetAllBoards()
+        public List<BoardBgViewModel> GetAllBoards(string userId)
         {
             try
             {
-                var boardsBgDTO = _boardRepository.GetAllBoards();
+                var boardsBgDTO = _boardRepository.GetAllBoards(userId);
 
                 List<BoardBgViewModel> boardBgViewModels = new List<BoardBgViewModel>();
                 
@@ -146,6 +150,22 @@ namespace TrelloProject.BLL.Services
                 throw new ApiException(400, new Exception ("Board title already exists.") , 4);
             }
             
+        }
+
+        public bool UserOwnsBoard(int boardId, string userId)
+        {
+            BoardBgDTO boardBgDTO = _boardRepository.GetBoard(boardId);
+            if(boardBgDTO == null)
+            {
+                return false;
+            }
+
+            string userIdFromContext = _boardRepository.GetUserIdFromContext(boardId);
+            if(userIdFromContext == userId)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

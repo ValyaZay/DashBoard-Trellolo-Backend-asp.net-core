@@ -57,34 +57,13 @@ namespace TrelloProject
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAdministrationService, AdministrationService>();
 
-            services.AddDALDependencyInjection();
+            services.AddDALDependencyInjection(Configuration);
 
             var jwtSettings = new JwtSettings();
             Configuration.Bind(nameof(jwtSettings), jwtSettings);
             services.AddSingleton(nameof(jwtSettings));
 
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "Trello API", Version = "v1" });
-
-                var security = new Dictionary<string, IEnumerable<string>>
-                {
-                    {"Bearer", new String[0] }
-                };
-
-                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
-                {
-                    Description = "JWT Authorization header using bearer scheme",
-                    Name = "Authorization",
-                    In = "header",
-                    Type = "apiKey"
-                });
-
-                c.AddSecurityRequirement(security);
-            });
-
-            
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddAuthentication(x =>
             {
@@ -107,7 +86,25 @@ namespace TrelloProject
                     };
                 });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Trello API", Version = "v1" });
+
+                var security = new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[0] }
+                };
+
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using bearer scheme",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                c.AddSecurityRequirement(security);
+            });
           
         }
 
@@ -130,6 +127,7 @@ namespace TrelloProject
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseAuthentication();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -149,7 +147,7 @@ namespace TrelloProject
 
             app.AddApiResponseProcessingMiddleware();
 
-            app.UseAuthentication();
+            
 
             app.UseMvc();
             

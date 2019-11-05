@@ -12,13 +12,13 @@ namespace TrelloProject.DAL.Extensions
 {
     public static class DependencyInjectionDALExtension
     {
-        public static IServiceCollection AddDALDependencyInjection(this IServiceCollection services)
+        public static IServiceCollection AddDALDependencyInjection(this IServiceCollection services, IConfiguration conf)
         {
             services.AddScoped<IBoardDTORepository, SQLBoardRepository>();
             services.AddScoped<IBackgroundColorDTORepository, SQLBackgroundColorRepository>();
             services.AddScoped<IAccountRepository, SQLAccountRepository>();
             services.AddScoped<IAdministrationRepository, SQLAdministrationRepository>();
-                        
+
             return services;
         }
 

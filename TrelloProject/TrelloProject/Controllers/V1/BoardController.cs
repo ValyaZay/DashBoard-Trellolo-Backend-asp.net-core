@@ -36,7 +36,12 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
         public ApiResponseSuccess Get()
         {
-            List <BoardBgViewModel> boardList = _boardDTOService.GetAllBoards();
+            var userId = User.Claims.Single(x => x.Type == "id").Value;
+            if (userId == null)
+            {
+                throw new ApiException(400, 19);
+            }
+            List <BoardBgViewModel> boardList = _boardDTOService.GetAllBoards(userId);
             return new ApiResponseSuccess(200, 0, boardList);
 
         }
@@ -47,6 +52,17 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
         public ApiResponseSuccess GetById(int id)
         {
+            var userId = User.Claims.Single(x => x.Type == "id").Value;
+            if (userId == null)
+            {
+                throw new ApiException(400, 19);
+            }
+            var userOwnsBoard = _boardDTOService.UserOwnsBoard(id, userId);
+            if (!userOwnsBoard)
+            {
+                throw new ApiException(400, 20);
+            }
+
             BoardBgViewModel board = _boardDTOService.GetBoard(id);
             return new ApiResponseSuccess(200, 0, board);
         }
@@ -57,11 +73,17 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
         public ApiResponseSuccess Create([FromBody] BoardCreateViewModel boardCreateViewModel)
         {
+            var userId = User.Claims.Single(x => x.Type == "id").Value;
+            if(userId == null)
+            {
+                throw new ApiException(400, 19);
+            }
+
             if(!ModelState.IsValid)
             {
                 throw new ApiException(400, 3);
             }
-            int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel);
+            int id = _boardDTOService.CreateBoardDTO(boardCreateViewModel, userId);
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Board.GetById.Replace("{id}", id.ToString());
@@ -75,6 +97,16 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
         public ApiResponseSuccess Update([FromBody] BoardUpdateViewModel boardUpdateViewModel)
         {
+            var userId = User.Claims.Single(x => x.Type == "id").Value;
+            if (userId == null)
+            {
+                throw new ApiException(400, 19);
+            }
+            var userOwnsBoard = _boardDTOService.UserOwnsBoard(boardUpdateViewModel.Id, userId);
+            if (!userOwnsBoard)
+            {
+                throw new ApiException(400, 20);
+            }
             if (!ModelState.IsValid)
             {
                 throw new ApiException(400, 3);
@@ -89,6 +121,16 @@ namespace TrelloProject.WEB.Controllers.V1
         [ProducesResponseType(typeof(ApiResponseNotSuccess), 400)]
         public ApiResponseSuccess Delete(int id)
         {
+            var userId = User.Claims.Single(x => x.Type == "id").Value;
+            if (userId == null)
+            {
+                throw new ApiException(400, 19);
+            }
+            var userOwnsBoard = _boardDTOService.UserOwnsBoard(id, userId);
+            if (!userOwnsBoard)
+            {
+                throw new ApiException(400, 20);
+            }
             var status = _boardDTOService.DeleteBoardDTO(id);
             return new ApiResponseSuccess(204, 13, status.ToString());
 

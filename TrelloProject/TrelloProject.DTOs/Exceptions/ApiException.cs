@@ -10,12 +10,31 @@ namespace TrelloProject.DTOsAndViewModels.Exceptions
         //add message here to throw it with apiException and show it
 
         public int ErrorCode { get; set; }
+        public object  ModelError { get; set; }
+
+        public ApiException(int statuscode, Exception ex, int errorcode, object modelError)
+            : base(ex.Message)
+        {
+            StatusCode = statuscode;
+            ErrorCode = errorcode;
+            ModelError = modelError;
+        }
 
         public ApiException(int statuscode, Exception ex, int errorcode)
             : base(ex.Message)
         {
             StatusCode = statuscode;
             ErrorCode = errorcode;
+           
+        }
+
+        public ApiException(int statuscode, int errorcode, object modelError)
+            : base()
+        {
+            StatusCode = statuscode;
+            ErrorCode = errorcode;
+            ModelError = modelError;
+
         }
 
         public ApiException(int statuscode, int errorcode)
@@ -23,6 +42,7 @@ namespace TrelloProject.DTOsAndViewModels.Exceptions
         {
             StatusCode = statuscode;
             ErrorCode = errorcode;
+            
         }
 
         public ApiException()
@@ -36,7 +56,7 @@ namespace TrelloProject.DTOsAndViewModels.Exceptions
 
         }
 
-        public ApiException(string message, Exception inner)
+        public ApiException(string message, Exception inner, object modelError)
             : base(message, inner)
         {
 

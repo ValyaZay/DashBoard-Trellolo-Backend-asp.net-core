@@ -11,6 +11,6 @@ namespace TrelloProject.BLL.Interfaces.ServicesInterfaces
     {
         Task<AuthenticationResult> CreateUser(RegisterViewModel registerViewModel);
 
-        Task<bool> Login(LoginViewModel loginViewModel);
+        Task<AuthenticationResult> Login(LoginViewModel loginViewModel);
     }
 }
