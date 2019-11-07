@@ -4,6 +4,7 @@ using System.Text;
 using TrelloProject.BLL.Interfaces.RepositoriesInterfaces;
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using TrelloProject.DTOsAndViewModels.Exceptions;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 
 namespace TrelloProject.BLL.Services
@@ -33,7 +34,7 @@ namespace TrelloProject.BLL.Services
             }
             catch (Exception innerEx)
             {
-                throw new Exception("ex", innerEx);
+                throw new ApiException(404, innerEx, 8);
             }
         }
     }

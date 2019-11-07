@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
+using TrelloProject.DTOsAndViewModels.Exceptions;
+using TrelloProject.DTOsAndViewModels.JWTauthentication;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.WEB.Contracts.V1;
+using TrelloProject.WEB.Infrastructure.ApiResponse;
 
 namespace TrelloProject.WEB.Controllers.V1
 {
@@ -20,33 +23,56 @@ namespace TrelloProject.WEB.Controllers.V1
         }
 
         [HttpPost(ApiRoutes.Account.Register)]
-        [ProducesResponseType(typeof(int), 201)]
+        [ProducesResponseType(typeof(int), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        public async Task<IActionResult> Create([FromBody] RegisterViewModel registerViewModel)
+        public async Task<ApiResponseBase> Create([FromBody] RegisterViewModel registerViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Insert valid data");//object error should be returned
-            }
-            try
-            {
-                string id = await _accountService.CreateUser(registerViewModel);
-                if (id == null)
+                AuthFail modelError = new AuthFail
                 {
-                    return BadRequest("User is not created");
-                }
-                else
-                {
-                    var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
-                    var locationUri = baseUrl + "/" + ApiRoutes.Account.GetRegisteredUserById.Replace("{id}", id);
-                    return Created(locationUri, id);
-                }
+                    Errors =  ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                };
+                throw new ApiException(400, 3, modelError);
             }
-            catch (Exception ex)
+            var authResponse = await _accountService.CreateUser(registerViewModel);
+            if (!authResponse.Success)
             {
-                return BadRequest(ex.Message);
+                AuthFail fail = new AuthFail()
+                {
+                    Errors = authResponse.Errors
+                };
+
+                return new ApiResponseBase(400, 16, fail);
             }
+            return new ApiResponseBase(200, 15, new AuthSuccess { Token = authResponse.Token });
             
+        }
+
+        [HttpPost(ApiRoutes.Account.Login)]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<ApiResponseBase> Login(LoginViewModel loginViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                AuthFail modelError = new AuthFail
+                {
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                };
+                throw new ApiException(400, 3, modelError);
+            }
+            var authResponse = await _accountService.Login(loginViewModel);
+            if (!authResponse.Success)
+            {
+                AuthFail fail = new AuthFail()
+                {
+                    Errors = authResponse.Errors
+                };
+
+                return new ApiResponseBase(400, 18, fail);
+            }
+            return new ApiResponseBase(200, 17, new AuthSuccess { Token = authResponse.Token });
         }
     }
 }

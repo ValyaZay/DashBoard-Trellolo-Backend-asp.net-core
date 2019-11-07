@@ -3,22 +3,27 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using TrelloProject.DTOsAndViewModels.Exceptions;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.WEB.Contracts.V1;
 using TrelloProject.WEB.Controllers.V1;
+using TrelloProject.WEB.Infrastructure.ApiResponse;
 using Xunit;
 
 namespace TrelloProject.IntegrationTests
 {
-    public class BoardControllerTests : IntegrationTestBaseClass 
+    public class BoardControllerTests : IntegrationTestBaseClass, IDisposable
     {
         
         [Fact]
@@ -27,46 +32,47 @@ namespace TrelloProject.IntegrationTests
             // Arrange
             
             // Act
-            var response = await TestClient.GetAsync(ApiRoutes.Board.GetAll);
+            var responseMessageGet = await TestClient.GetAsync(ApiRoutes.Board.GetAll);
+            var jsonStringGet = await responseMessageGet.Content.ReadAsStringAsync();
+            var apiResponseGet = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringGet);
+
+            var jsonStringResult = apiResponseGet.Result.ToString();
+            var apiResult = JsonConvert.DeserializeObject<List<BoardBgViewModel>>(jsonStringResult);
+            int apiResultCount = apiResult.Count;
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returnedCollection = await response.Content.ReadAsAsync<List<BoardDTO>>();
-            returnedCollection.Count.Should().BeGreaterThan(0);
-            returnedCollection.Should().NotBeNullOrEmpty();
-            returnedCollection.Should().BeOfType<List<BoardDTO>>();
-            returnedCollection.Should().NotContainNulls();
+            apiResult.Should().BeOfType<List<BoardBgViewModel>>();
+            apiResult.Should().HaveCount(apiResultCount);
+            apiResponseGet.StatusCode.Should().Be(200);
+            apiResponseGet.CustomCode.Should().Be(0);
+            apiResponseGet.Should().NotBeNull();
         }
 
-        private HttpClient TestClientInMemory;
         [Fact]
-        public async Task Get_IfTheDBIsEmpty_ReturnsOKResponseWithMessage()
+        public async Task Get_IfTheDBIsEmpty_ReturnsOK()
         {
             // Arrange
-            var appFactory = new WebApplicationFactory<Startup>()
-                .WithWebHostBuilder(builder =>
-                {
-                    builder.ConfigureServices(services =>
-                    {
-                        services.RemoveAll(typeof(TrelloDbContext));
-                        services.AddDbContext<TrelloDbContext>(options =>
-                        {
-                            options.UseInMemoryDatabase("Get_IfTheDBIsEmpty_ReturnsOKResponseWithMessage");
-                        });
-                    });
-                });
-            TestClientInMemory = appFactory.CreateClient();
+           
 
             // Act
-            var response = await TestClientInMemory.GetAsync(ApiRoutes.Board.GetAll);
+            var responseMessageGet = await TestClient.GetAsync(ApiRoutes.Board.GetAll);
+            var jsonStringGet = await responseMessageGet.Content.ReadAsStringAsync();
+            var apiResponseGet = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringGet);
+
+            var jsonStringResult = apiResponseGet.Result.ToString();
+            var apiResult = JsonConvert.DeserializeObject<List<BoardBgViewModel>>(jsonStringResult);
+            //int apiResultCount = apiResult.Count;
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("There are no boards created.");
+            apiResult.Should().BeOfType<List<BoardBgViewModel>>();
+            apiResult.Should().HaveCount(0);
+            apiResponseGet.StatusCode.Should().Be(200);
+            apiResponseGet.CustomCode.Should().Be(0);
+            apiResponseGet.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task Create_ModelIsValid_ReturnsCreatedResponse()
+        public async Task Create_ModelIsValid_ReturnsCreatedResponseAndUri()
         {
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
@@ -74,10 +80,15 @@ namespace TrelloProject.IntegrationTests
             BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 1 };
             
             //Act
-            var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
+            var responseMessage = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
+            var responseMessageAsAstring = await responseMessage.Content.ReadAsStringAsync();
+            var apiNotSuccessResponse = JsonConvert.DeserializeObject<ApiResponseNotSuccess>(responseMessageAsAstring);
 
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
+            apiNotSuccessResponse.StatusCode.Should().Be(201);
+            apiNotSuccessResponse.CustomCode.Should().Be(11);
+
+            apiNotSuccessResponse.Should().NotBeNull();
         }
 
         [Fact]
@@ -87,11 +98,14 @@ namespace TrelloProject.IntegrationTests
             BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { };
 
             //Act
-            var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
-                       
+            var responseMessage = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
+            var responseAsAString = await responseMessage.Content.ReadAsStringAsync();
+            var apiResponseNotSuccess = JsonConvert.DeserializeObject<ApiResponseNotSuccess>(responseAsAString);
+
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("Insert valid data");
+            apiResponseNotSuccess.StatusCode.Should().Be(400);
+            apiResponseNotSuccess.CustomCode.Should().Be(3);
+            apiResponseNotSuccess.Should().NotBeNull();
         }
 
         [Fact]
@@ -101,35 +115,20 @@ namespace TrelloProject.IntegrationTests
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
             BoardCreateViewModel boardWithATitle = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 2 };
+
             await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardWithATitle);
-                        
+             
             BoardCreateViewModel boardWithTheSameTitle = new BoardCreateViewModel { Title = title };
             
             //Act
-            var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardWithTheSameTitle);
+            var responseMessage = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardWithTheSameTitle);
+            var responseAsAString = await responseMessage.Content.ReadAsStringAsync();
+            var apiResponseNotSuccess = JsonConvert.DeserializeObject<ApiResponseNotSuccess>(responseAsAString);
 
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("Board Title " + boardWithTheSameTitle.Title + " already exists");
-        }
-
-        [Fact]
-        public async Task Create_BoardIsCreated_ReturnsBoardIdInLocation()
-        {
-            //Arrange
-            var titleGuid = Guid.NewGuid().ToString();
-            var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreateViewModel = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 2 };
-
-            //Act
-            var response = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreateViewModel);
-
-            //Assert
-            var createdBoardId = await response.Content.ReadAsAsync<int>();
-           
-            response.Headers.Location.ToString().Should().Contain($"api/v1/board/{createdBoardId}");
-
-            createdBoardId.Should().BeGreaterThan(0);
+            apiResponseNotSuccess.StatusCode.Should().Be(400);
+            apiResponseNotSuccess.CustomCode.Should().Be(1);
+            apiResponseNotSuccess.Should().NotBeNull();
         }
 
         [Fact]
@@ -138,19 +137,31 @@ namespace TrelloProject.IntegrationTests
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
             string title = "IntegrTest" + titleGuid;
-            var createdBoard = await CreateBoardAsync( new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 });
+            BoardCreateViewModel model = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
             
+            var responseMessagePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, model);
+            var jsonStringPost = await responseMessagePost.Content.ReadAsStringAsync();
+            var apiResponsePost = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringPost);
+
+            string urlOfCreatedBoard = apiResponsePost.Result.ToString();
+            int slashIndex = urlOfCreatedBoard.LastIndexOf("/");
+            string id = urlOfCreatedBoard.Substring(slashIndex + 1); 
+
             //Act
-            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", createdBoard.BoardId.ToString()));
+            var responseMessageGet = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", id));
+            var jsonStringGet = await responseMessageGet.Content.ReadAsStringAsync();
+            var apiResponseGet = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringGet);
+
+            var jsonStringResult = apiResponseGet.Result.ToString();
+            var apiResult = JsonConvert.DeserializeObject<BoardBgViewModel>(jsonStringResult);
 
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returnedBoard = await response.Content.ReadAsAsync<BoardBgViewModel>();
-            returnedBoard.Id.Should().Be(createdBoard.BoardId);
-            returnedBoard.BgColorId.Should().Be(createdBoard.CurrentBackgroundColorId);
-            returnedBoard.Title.Should().Be(createdBoard.Title);
-            
-            returnedBoard.Should().NotBeNull();
+            responseMessageGet.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            apiResult.Id.Should().Be(Convert.ToInt32(id));
+            apiResponseGet.StatusCode.Should().Be(200);
+            apiResponseGet.CustomCode.Should().Be(0);
+            apiResponseGet.Should().NotBeNull();
         }
 
         [Fact]
@@ -160,11 +171,11 @@ namespace TrelloProject.IntegrationTests
             string dummyIdString  = DateTime.Now.Ticks.ToString().Substring(0, 9);
             
             //Act
-            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{BoardId}", dummyIdString));
+            var response = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", dummyIdString));
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            //(await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The board with ID = " + dummyIdString + " does not exist");
+            
         }
 
         [Fact]
@@ -174,31 +185,28 @@ namespace TrelloProject.IntegrationTests
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
             BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 4 };
-            var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
+            var responseMessagePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
 
-            string boardLocationWithId = responsePost.Headers.Location.ToString();
-            var startIndex = boardLocationWithId.LastIndexOf("/");
-            var boardCreatedId = boardLocationWithId.Substring(startIndex + 1);
-
-            var responseGetById = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", boardCreatedId.ToString()));
-            var returnedBoardById = await responseGetById.Content.ReadAsAsync<BoardBgViewModel>();
+            var responseMessagePostString = await responseMessagePost.Content.ReadAsStringAsync();
+            var apiSuccessResponse = JsonConvert.DeserializeObject<ApiResponseSuccess>(responseMessagePostString);
+            var url = apiSuccessResponse.Result.ToString();
+            int slashIndex = url.LastIndexOf("/");
+            string id = url.Substring(slashIndex + 1);
 
             var updatedTitleGuid = Guid.NewGuid().ToString();
             string updatedTitle = "IntegrTestUpd" + updatedTitleGuid;
-            BoardUpdateViewModel boardUpdated = new BoardUpdateViewModel { Id = returnedBoardById.Id, Title = updatedTitle, CurrentBackgroundColorId = returnedBoardById.BgColorId };
+            BoardUpdateViewModel boardUpdated = new BoardUpdateViewModel { Id = Convert.ToInt32(id), Title = updatedTitle, CurrentBackgroundColorId = boardCreated.CurrentBackgroundColorId };
 
             //Act
-            var response = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update, boardUpdated);
-            
-            var responseGetUpdatedBoard = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", boardUpdated.Id.ToString()));
+            var responseMessagePut = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update, boardUpdated);
+            var responseMessagePutAsString = await responseMessagePut.Content.ReadAsStringAsync();
+            var apiSuccessResponsePut = JsonConvert.DeserializeObject<ApiResponseSuccess>(responseMessagePutAsString);
+            var apiResult = apiSuccessResponsePut.Result.ToString().ToLower();
 
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-            var returnedUpdatedBoard = await responseGetUpdatedBoard.Content.ReadAsAsync<BoardBgViewModel>();
-            returnedUpdatedBoard.Id.Should().Be(boardUpdated.Id);
-            returnedUpdatedBoard.Title.Should().Be(boardUpdated.Title);
-            returnedUpdatedBoard.BgColorId.Should().Be((int)boardUpdated.CurrentBackgroundColorId);
-            returnedUpdatedBoard.Should().NotBeNull();
+            apiSuccessResponsePut.StatusCode.Should().Be(204);
+            apiResult.Should().Be("true");
+            apiSuccessResponsePut.Should().NotBeNull();
         }
 
         [Fact]
@@ -210,11 +218,14 @@ namespace TrelloProject.IntegrationTests
             BoardUpdateViewModel boardUpdated = new BoardUpdateViewModel { Id = Convert.ToInt32(idDoesNotExist), Title = updatedTitle };
 
             //Act
-            var response = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update, boardUpdated);
+            var responseMessage = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update, boardUpdated);
+            var responseMessageAsString = await responseMessage.Content.ReadAsStringAsync();
+            var apiNotSuccessResponse = JsonConvert.DeserializeObject<ApiResponseNotSuccess>(responseMessageAsString);
 
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The background color with ID = ... does not exist");
+            apiNotSuccessResponse.StatusCode.Should().Be(404);
+            apiNotSuccessResponse.CustomCode.Should().Be(6);
+            apiNotSuccessResponse.Should().NotBeNull();
         }
         
         [Fact]
@@ -224,22 +235,27 @@ namespace TrelloProject.IntegrationTests
             var titleGuid = Guid.NewGuid().ToString();
             var title = "IntegrTest" + titleGuid;
             BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
-            var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
+            var responseMessagePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
 
-            string boardLocationWithId = responsePost.Headers.Location.ToString();
-            var startIndex = boardLocationWithId.LastIndexOf("/");
-            var boardCreatedId = boardLocationWithId.Substring(startIndex + 1);
+            var responseMessagePostAsString = await responseMessagePost.Content.ReadAsStringAsync();
+            var apiSuccessResponse = JsonConvert.DeserializeObject<ApiResponseSuccess>(responseMessagePostAsString);
+
+            string url = apiSuccessResponse.Result.ToString();
+            var indexOfSlash = url.LastIndexOf("/");
+            var id = url.Substring(indexOfSlash + 1);
 
             var notValidTitleGuid = Guid.NewGuid().ToString();
             var notValidTitle = "IntegrTest" + notValidTitleGuid + notValidTitleGuid;
-            BoardDTO boardUpdated = new BoardDTO { Title = notValidTitle };
+            BoardUpdateViewModel boardUpdated = new BoardUpdateViewModel { Id = Convert.ToInt32(id), Title = notValidTitle };
 
             //Act
-            var response = await TestClient.PutAsJsonAsync(ApiRoutes.Board.Update.Replace("{BoardId}", boardCreatedId.ToString()), boardUpdated);
+            var responseMessagePut = await TestClient.PutAsJsonAsync((ApiRoutes.Board.Update), boardUpdated);
+            var responseMessagePutAsString = await responseMessagePut.Content.ReadAsStringAsync();
+            var apiNotSuccessResponse = JsonConvert.DeserializeObject<ApiResponseNotSuccess>(responseMessagePutAsString);
 
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("Insert valid data");
+            apiNotSuccessResponse.StatusCode.Should().Be(400);
+            apiNotSuccessResponse.CustomCode.Should().Be(3);
         }
 
         [Fact]
@@ -247,21 +263,30 @@ namespace TrelloProject.IntegrationTests
         {
             //Arrange
             var titleGuid = Guid.NewGuid().ToString();
-            var title = "IntegrTest" + titleGuid;
-            BoardCreateViewModel boardCreated = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
-            var responsePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, boardCreated);
+            string title = "IntegrTest" + titleGuid;
+            BoardCreateViewModel model = new BoardCreateViewModel { Title = title, CurrentBackgroundColorId = 3 };
 
-            string boardLocationWithId = responsePost.Headers.Location.ToString();
-            var startIndex = boardLocationWithId.LastIndexOf("/");
-            var boardCreatedId = boardLocationWithId.Substring(startIndex + 1);
+            var responseMessagePost = await TestClient.PostAsJsonAsync(ApiRoutes.Board.Create, model);
+            var jsonStringPost = await responseMessagePost.Content.ReadAsStringAsync();
+            var apiResponsePost = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringPost);
+
+            string urlOfCreatedBoard = apiResponsePost.Result.ToString();
+            int slashIndex = urlOfCreatedBoard.LastIndexOf("/");
+            string id = urlOfCreatedBoard.Substring(slashIndex + 1);
 
             //Act
-            var response = await TestClient.DeleteAsync(ApiRoutes.Board.Delete.Replace("{id}", boardCreatedId));
-            var responseGetDeletedBoard = await TestClient.GetAsync(ApiRoutes.Board.GetById.Replace("{id}", boardCreatedId));
+            var responseMessageGetDeletedBoard = await TestClient.DeleteAsync(ApiRoutes.Board.Delete.Replace("{id}", id));
 
+            var jsonStringGet = await responseMessageGetDeletedBoard.Content.ReadAsStringAsync();
+            var apiResponseGetDeleted = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringGet);
+
+            var jsonStringResult = apiResponseGetDeleted.Result.ToString().ToLower();
+                   
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-            (await responseGetDeletedBoard.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The board with ID = " + boardCreatedId + " does not exist");
+            jsonStringResult.Should().Be("true");
+            apiResponseGetDeleted.StatusCode.Should().Be(204);
+            apiResponseGetDeleted.CustomCode.Should().Be(13);
+            apiResponseGetDeleted.CustomCodeMessage.Should().BeOfType<string>();
         }
 
         [Fact]
@@ -271,11 +296,22 @@ namespace TrelloProject.IntegrationTests
             var idDoesNotExist = DateTime.Now.Ticks.ToString().Substring(0, 9);
 
             //Act
-            var response = await TestClient.DeleteAsync(ApiRoutes.Board.Delete.Replace("{BoardId}", idDoesNotExist));
+            var response = await TestClient.DeleteAsync(ApiRoutes.Board.Delete.Replace("{id}", idDoesNotExist));
+            var responseAsString = await response.Content.ReadAsStringAsync();
+
+            var apiResponse = JsonConvert.DeserializeObject<ApiResponseSuccess>(responseAsString);
 
             //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("The item with ID=" + idDoesNotExist + " does not exist");
+            apiResponse.StatusCode.Should().Be(404);
+            apiResponse.CustomCode.Should().Be(6);
+            apiResponse.CustomCodeMessage.Should().Contain("not exist");
+        }
+
+        
+        public void Dispose()
+        {
+            var _context = GetContext();
+            _context.Database.EnsureDeleted(); // where to get context 
         }
     }
 }

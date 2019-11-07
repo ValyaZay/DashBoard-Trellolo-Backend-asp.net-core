@@ -7,8 +7,7 @@ namespace TrelloProject.DTOsAndViewModels.DTOs
         public int BoardId { get; set; }
         public string Title { get; set; }
         public int CurrentBackgroundColorId { get; set; }
-        
 
-        
+
     }
 }

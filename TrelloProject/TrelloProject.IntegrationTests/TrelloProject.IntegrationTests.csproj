@@ -16,12 +16,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TrelloProject.DAL\TrelloProject.DAL.csproj" />
     <ProjectReference Include="..\TrelloProject.DTOs\TrelloProject.DTOsAndViewModels.csproj" />
     <ProjectReference Include="..\TrelloProject\TrelloProject.WEB.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

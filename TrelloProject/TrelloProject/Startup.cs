@@ -1,5 +1,6 @@
 
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -8,14 +9,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.BLL.Services;
 using TrelloProject.DAL.EF;
 using TrelloProject.DAL.Entities;
 using TrelloProject.DAL.Extensions;
-
-
+using TrelloProject.DTOsAndViewModels.JWTauthentication;
+using TrelloProject.WEB.Infrastructure.CustomMiddlware;
+using TrelloProject.WEB.Infrastructure.Extensions;
 
 namespace TrelloProject
 {
@@ -31,9 +37,6 @@ namespace TrelloProject
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-
-
             services.AddHealthChecks();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -43,43 +46,76 @@ namespace TrelloProject
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
-            //services.AddIdentity<User, IdentityRole>(options => {
-            //    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+/";
-            //})
-            
-            //services.AddIdentity<User, IdentityRole>()
-            //        .AddEntityFrameworkStores<TrelloDbContext>();
-
-            
             services.AddIdentityUserAndIdentityRoleDALExtension()
                     .AddEntityFrameworkStoresDbContext();
 
-
-            services.AddDbContextDALExtension(options => options.UseSqlServer(Configuration.GetConnectionString("TrelloDBConnection")));
+            var connectionString = Configuration.GetConnectionString("TrelloDBConnection");
+            services.AddDbContextDALExtension(options => options.UseSqlServer(connectionString));
             
             services.AddScoped<IBoardDTOService, BoardDTOService>();
             services.AddScoped<IBackgroundColorDTOService, BackgroundColorDTOService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAdministrationService, AdministrationService>();
 
-            services.AddDALDependencyInjection();
+            services.AddDALDependencyInjection(Configuration);
 
+            var jwtSettings = new JwtSettings();
+            Configuration.Bind(nameof(jwtSettings), jwtSettings);
+            services.AddSingleton(nameof(jwtSettings));
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddAuthorization();
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(x =>
+
+                {
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        RequireExpirationTime = false,
+                        ValidateLifetime = true
+                    };
+                });
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Trello API", Version = "v1" });
+
+                var security = new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[0] }
+                };
+
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using bearer scheme",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                c.AddSecurityRequirement(security);
             });
-
-
-
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            ConfigurateSeedDatabase(app);
+           
+
             app.UseHealthChecks("/health");
 
 
@@ -93,7 +129,8 @@ namespace TrelloProject
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseAuthentication();
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -110,10 +147,19 @@ namespace TrelloProject
                 c.RoutePrefix = string.Empty;
             });
 
-            app.UseAuthentication();
+            app.AddApiResponseProcessingMiddleware();
+
+            
 
             app.UseMvc();
+            
+        }
 
+        public virtual IApplicationBuilder ConfigurateSeedDatabase(IApplicationBuilder app)
+        {
+            app.MigrateAndSeedDatabase();
+
+            return app;
         }
     }
 }

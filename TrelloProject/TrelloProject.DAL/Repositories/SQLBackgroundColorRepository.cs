@@ -20,6 +20,7 @@ namespace TrelloProject.DAL.Repositories
         public SQLBackgroundColorRepository(TrelloDbContext trelloDbContext)
         {
             _trelloDbContext = trelloDbContext;
+            
         }
 
         private BackgroundColorDTO MapToBgColorDTO(BackgroundColor backgroundColor)
@@ -44,7 +45,7 @@ namespace TrelloProject.DAL.Repositories
             BackgroundColor backgroundColor = _trelloDbContext.BackgroundColors.Find(id);
             if(backgroundColor == null)
             {
-                throw new BgColorDoesNotExistException();
+                throw new ApiException(400, new Exception("Background color does not exist"), 5);
             }
             else
             {

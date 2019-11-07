@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using TrelloProject.BLL.Interfaces.ServicesInterfaces;
 using TrelloProject.DTOsAndViewModels.DTOs;
-using TrelloProject.DTOsAndViewModels.OtherModels;
 using TrelloProject.DTOsAndViewModels.ViewModels;
 using TrelloProject.WEB.Contracts.V1;
+using TrelloProject.WEB.Infrastructure.ApiResponse;
 
 namespace TrelloProject.WEB.Controllers.V1
 {
@@ -23,30 +23,11 @@ namespace TrelloProject.WEB.Controllers.V1
 
         [HttpGet(ApiRoutes.BackgroundColor.GetAll)]
         [ProducesResponseType(typeof(List<BgColorViewModel>), 200)]
-        [ProducesResponseType(typeof(ApiResponse), 400)]
-        public IActionResult Get()
+        
+        public ApiResponseSuccess Get()
         {
-            try
-            {
-                var bgColorsViewModels = backgroundColorDTOService.GetAllBgColors();
-                int bgColorsCount = bgColorsViewModels.Count();
-                if (bgColorsCount == 0)
-                {
-                    return Ok("There are no BgColor created.");
-                }
-                else
-                {
-                    return Ok(bgColorsViewModels);
-
-                }
-            }
-            catch (Exception)
-            {
-                return BadRequest(new ApiResponse { Status = false });
-            }
-
-
-
+            List<BgColorViewModel> bgList = backgroundColorDTOService.GetAllBgColors();
+            return new ApiResponseSuccess(200, 0, bgList); 
         }
     }
 }

@@ -142,38 +142,6 @@ namespace TrelloProject.DAL.Migrations
                     b.HasKey("BackgroundColorId");
 
                     b.ToTable("BackgroundColors");
-
-                    b.HasData(
-                        new
-                        {
-                            BackgroundColorId = 1,
-                            ColorHex = "#C0C0C0",
-                            ColorName = "Grey"
-                        },
-                        new
-                        {
-                            BackgroundColorId = 2,
-                            ColorHex = "#ffff00",
-                            ColorName = "Yellow"
-                        },
-                        new
-                        {
-                            BackgroundColorId = 3,
-                            ColorHex = "#FFA500",
-                            ColorName = "Orange"
-                        },
-                        new
-                        {
-                            BackgroundColorId = 4,
-                            ColorHex = "#0000FF",
-                            ColorName = "Blue"
-                        },
-                        new
-                        {
-                            BackgroundColorId = 5,
-                            ColorHex = "#008000",
-                            ColorName = "Green"
-                        });
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.Board", b =>
@@ -195,14 +163,6 @@ namespace TrelloProject.DAL.Migrations
                         .HasFilter("[Title] IS NOT NULL");
 
                     b.ToTable("Boards");
-
-                    b.HasData(
-                        new
-                        {
-                            BoardId = 1,
-                            CurrentBackgroundColorId = 1,
-                            Title = "ManagerBoard"
-                        });
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.Card", b =>
@@ -234,30 +194,6 @@ namespace TrelloProject.DAL.Migrations
                     b.HasIndex("CreatedById");
 
                     b.ToTable("Cards");
-
-                    b.HasData(
-                        new
-                        {
-                            CardId = 1,
-                            AssigneeId = "2",
-                            CardListId = 1,
-                            CreatedById = "1",
-                            CreatedDate = new DateTime(2019, 8, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Just create a new task",
-                            Hidden = false,
-                            Title = "Create a task"
-                        },
-                        new
-                        {
-                            CardId = 2,
-                            AssigneeId = "3",
-                            CardListId = 1,
-                            CreatedById = "1",
-                            CreatedDate = new DateTime(2019, 8, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Implement INewInterface now",
-                            Hidden = false,
-                            Title = "Implement an Interface"
-                        });
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.CardComment", b =>
@@ -285,25 +221,6 @@ namespace TrelloProject.DAL.Migrations
                     b.HasIndex("RefersToId");
 
                     b.ToTable("CardComments");
-
-                    b.HasData(
-                        new
-                        {
-                            CardCommentId = 1,
-                            CardId = 1,
-                            CreatedById = "2",
-                            CreatedDate = new DateTime(2019, 2, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Text = "Good comment"
-                        },
-                        new
-                        {
-                            CardCommentId = 2,
-                            CardId = 1,
-                            CreatedById = "2",
-                            CreatedDate = new DateTime(2019, 4, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            RefersToId = 1,
-                            Text = "Bad comment"
-                        });
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.CardList", b =>
@@ -323,29 +240,6 @@ namespace TrelloProject.DAL.Migrations
                     b.HasIndex("BoardId");
 
                     b.ToTable("CardLists");
-
-                    b.HasData(
-                        new
-                        {
-                            CardListId = 1,
-                            BoardId = 1,
-                            Order = 0,
-                            Title = "ToDo"
-                        },
-                        new
-                        {
-                            CardListId = 2,
-                            BoardId = 1,
-                            Order = 1,
-                            Title = "Done"
-                        },
-                        new
-                        {
-                            CardListId = 3,
-                            BoardId = 1,
-                            Order = 2,
-                            Title = "DoNOTDo"
-                        });
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.User", b =>
@@ -401,47 +295,6 @@ namespace TrelloProject.DAL.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "ab9dd962-6812-4ed8-bcc1-efb583a80d72",
-                            Email = "valya@valya.net",
-                            EmailConfirmed = false,
-                            FirstName = "Valya",
-                            LastName = "Zay",
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
-                        },
-                        new
-                        {
-                            Id = "2",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "9beec757-76af-40c8-9508-3b2413b0d8c8",
-                            Email = "vova@vova.com",
-                            EmailConfirmed = false,
-                            FirstName = "Vova",
-                            LastName = "Petrov",
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
-                        },
-                        new
-                        {
-                            Id = "3",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "d5f4cefc-ecee-4f0e-a69f-6134b219aed9",
-                            Email = "gora@gora.net",
-                            EmailConfirmed = false,
-                            FirstName = "Gora",
-                            LastName = "Sidorov",
-                            LockoutEnabled = false,
-                            PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
-                        });
                 });
 
             modelBuilder.Entity("TrelloProject.DAL.Entities.UserBoard", b =>
@@ -455,13 +308,6 @@ namespace TrelloProject.DAL.Migrations
                     b.HasIndex("BoardId");
 
                     b.ToTable("UserBoards");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "2",
-                            BoardId = 1
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

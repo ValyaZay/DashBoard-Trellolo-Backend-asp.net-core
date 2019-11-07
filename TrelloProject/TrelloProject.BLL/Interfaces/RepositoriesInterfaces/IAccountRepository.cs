@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using TrelloProject.DTOsAndViewModels.DTOs;
+using TrelloProject.DTOsAndViewModels.JWTauthentication;
 
 namespace TrelloProject.BLL.Interfaces.RepositoriesInterfaces
 {
     public interface IAccountRepository
     {
-        Task<string> CreateUser(RegisterDTO registerDTO);
+        Task<AuthenticationResult> CreateUser(RegisterDTO registerDTO);
+        Task<AuthenticationResult> Login(LoginDTO loginDTO);
     }
 }

@@ -22,34 +22,29 @@ namespace TrelloProject.BLL.Services
             _backgroundColorDTORepository = backgroundColorDTORepository;
         }
 
-        public int CreateBoardDTO(BoardCreateViewModel boardCreateViewModel)
+        public int CreateBoardDTO(BoardCreateViewModel boardCreateViewModel, string userId)
         {
+            if (userId == null)
+            {
+                throw new ApiException(400, 19);
+            }
             BoardDTO newBoardDTO = new BoardDTO();
             newBoardDTO.Title = boardCreateViewModel.Title;
             int bgColorId = (boardCreateViewModel.CurrentBackgroundColorId != 0) ? boardCreateViewModel.CurrentBackgroundColorId : 1;
             //check whether bg color exists
+            int createdBoardId;
             try
             {
                 _backgroundColorDTORepository.DoesBackgroundColorExist(bgColorId);
                 newBoardDTO.CurrentBackgroundColorId = bgColorId;
-                var createdBoardId = _boardRepository.Create(newBoardDTO);
-                if(createdBoardId > 0)
-                {
-                    return createdBoardId;
-                }
-                else
-                {
-                    throw new BoardIsNotCreated("Board is not created"); // custom service-exception should be thrown
-                }
+                createdBoardId = _boardRepository.Create(newBoardDTO, userId);
             }
-            catch (BoardTitleAlreadyExists)
+            
+            catch (Exception innerEx)
             {
-                throw new BoardTitleAlreadyExists();
+                throw new ApiException(400, innerEx, 1);
             }
-            catch (BgColorDoesNotExistException repoEx)
-            {
-                throw new BgColorDoesNotExistException(repoEx.Message); // custom service-exception should be thrown
-            }
+            return createdBoardId;
         }
 
         public bool DeleteBoardDTO(int id)
@@ -57,7 +52,7 @@ namespace TrelloProject.BLL.Services
             BoardBgDTO boardDTO = _boardRepository.GetBoard(id);
             if (boardDTO == null)
             {
-                throw new NullReferenceException("The item with ID=" + id + " does not exist");
+                throw new ApiException(404, 6);
             }
 
             else
@@ -67,19 +62,19 @@ namespace TrelloProject.BLL.Services
                     bool status = _boardRepository.Delete(id);
                     return status;
                 }
-                catch (Exception)
+                catch (Exception innerEx)
                 {
-                    throw new Exception();
+                    throw new ApiException(400, innerEx, 6);
                 }
-                
+              
             }
         }
 
-        public List<BoardBgViewModel> GetAllBoards()
+        public List<BoardBgViewModel> GetAllBoards(string userId)
         {
             try
             {
-                var boardsBgDTO = _boardRepository.GetAllBoards();
+                var boardsBgDTO = _boardRepository.GetAllBoards(userId);
 
                 List<BoardBgViewModel> boardBgViewModels = new List<BoardBgViewModel>();
                 
@@ -98,14 +93,41 @@ namespace TrelloProject.BLL.Services
             }
             catch(Exception innerEx)
             {
-                throw new Exception("err", innerEx); // custom exception should be thrown
+                throw new ApiException(400, innerEx, 10);
             }
-             
+         
+        }
+
+        public List<BoardBgViewModel> GetAllBoards()
+        {
+            try
+            {
+                var boardsBgDTO = _boardRepository.GetAllBoards();
+
+                List<BoardBgViewModel> boardBgViewModels = new List<BoardBgViewModel>();
+
+                foreach (var boardBgDTO in boardsBgDTO)
+                {
+                    BoardBgViewModel boardBgViewModel = new BoardBgViewModel();
+                    boardBgViewModel.Id = boardBgDTO.Id;
+                    boardBgViewModel.Title = boardBgDTO.Title;
+                    boardBgViewModel.BgColorId = boardBgDTO.BgColorId;
+                    boardBgViewModel.BgColorName = boardBgDTO.BgColorName;
+                    boardBgViewModel.BgColorHex = boardBgDTO.BgColorHex;
+
+                    boardBgViewModels.Add(boardBgViewModel);
+                }
+                return boardBgViewModels;
+            }
+            catch (Exception innerEx)
+            {
+                throw new ApiException(400, innerEx, 10);
+            }
         }
 
         public BoardBgViewModel GetBoard(int id)
         {
-            
+
             try
             {
                 BoardBgDTO boardBgDTO = _boardRepository.GetBoard(id);
@@ -120,12 +142,12 @@ namespace TrelloProject.BLL.Services
 
                 return boardBgViewModel;
             }
-            catch(BoardDoesNotExistException e)
+            catch (Exception innerEx)
             {
-                throw new BoardDoesNotExistException(e.Message); // custom exception should be thrown
+                throw new ApiException(404, innerEx, 6);
             }
-            
-            
+
+
         }
 
         public bool UpdateBoardDTO(BoardUpdateViewModel boardUpdateViewModel)
@@ -146,19 +168,31 @@ namespace TrelloProject.BLL.Services
                 var status = _boardRepository.Update(boardDTO);
                 return status;
             }
+            catch(ApiException ex)
+            {
+                throw ex;
+            }
+            catch (Exception)
+            {
+                throw new ApiException(400, new Exception ("Board title already exists.") , 4);
+            }
             
-            catch (BoardTitleAlreadyExists)
+        }
+
+        public bool UserOwnsBoard(int boardId, string userId)
+        {
+            BoardBgDTO boardBgDTO = _boardRepository.GetBoard(boardId);
+            if(boardBgDTO == null)
             {
-                throw new BoardTitleAlreadyExists();
+                return false;
             }
-            catch (BgColorDoesNotExistException)
+
+            string userIdFromContext = _boardRepository.GetUserIdFromContext(boardId);
+            if(userIdFromContext == userId)
             {
-                throw new BgColorDoesNotExistException(); // custom service-exception should be thrown
+                return true;
             }
-            catch (BoardDoesNotExistException)
-            {
-                throw new BoardDoesNotExistException(); // custom exception should be thrown
-            }
+            return false;
         }
     }
 }

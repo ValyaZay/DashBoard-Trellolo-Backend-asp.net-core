@@ -8,54 +8,38 @@ using TrelloProject.DTOsAndViewModels.DTOs;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TrelloProject.DTOsAndViewModels.Exceptions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace TrelloProject.DAL.Repositories
 {
     internal class SQLBoardRepository : IBoardDTORepository
     {
-        private IMapper mapper;
-
+       
         private readonly TrelloDbContext _trelloDbContext;
-        private MapperConfiguration config;
+        //private readonly UserManager<User> _userManager;
+
         public bool deleted = false;
 
 
-        private BoardDTO MapToBoardDTO(Board board)
-        {
-            config = new MapperConfiguration(cfg => cfg.CreateMap<Board, BoardDTO>());
-            mapper = config.CreateMapper();
-            BoardDTO boardDTO = mapper.Map<Board, BoardDTO>(board);
-            return boardDTO;
-        }
-
-        private Board MapToBoard(BoardDTO boardDTO)
-        {
-            config = new MapperConfiguration(cfg => cfg.CreateMap<BoardDTO, Board>());
-            mapper = config.CreateMapper();
-            Board board = mapper.Map<BoardDTO, Board>(boardDTO);
-            return board;
-        }
-
-        public SQLBoardRepository(TrelloDbContext trelloDbContext)
+        
+        public SQLBoardRepository(TrelloDbContext trelloDbContext) //UserManager<User> userManager
         {
             _trelloDbContext = trelloDbContext;
-        }
-
-        private BackgroundColor FindBgColor(Board board)
-        {
-            return _trelloDbContext.BackgroundColors.Find(board.CurrentBackgroundColorId);
+           // _userManager = userManager;
         }
 
         public BoardBgDTO GetBoard(int id)
         {
             try
             {
-                //should be caught System.InvalidOperationException
+                
                 Board board = _trelloDbContext.Boards.Where(b => b.BoardId == id)
                                                      .Include(b => b.BackgroundColor)
                                                      .AsNoTracking()
                                                      .FirstOrDefault();
-                //BackgroundColor bgColor = FindBgColor(board);
+                
+
                 BoardBgDTO boardBgDTO = new BoardBgDTO();
 
                 boardBgDTO.Id = board.BoardId;
@@ -63,54 +47,69 @@ namespace TrelloProject.DAL.Repositories
                 boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
                 boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
                 boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
+                
                 return boardBgDTO;
             }
-            catch (Exception e)
+            catch(Exception innerEx)
             {
-                throw new BoardDoesNotExistException(e.Message);//throw custom repo-ex
+                throw new ApiException(404, innerEx, 6);
             }
-
-            
         }
 
-        public List<BoardBgDTO> GetAllBoards()
+        public List<BoardBgDTO> GetAllBoards(string userId)
         {
             IEnumerable<Board> boards = _trelloDbContext.Boards.Include(b => b.BackgroundColor)
                                                                .AsNoTracking()
                                                                .ToList();
 
+            List<UserBoard> userBoards = _trelloDbContext.UserBoards.Where(x => x.UserId == userId).ToList();
+
             List<BoardBgDTO> boardsBgDTO = new List<BoardBgDTO>();
             
-
             foreach (Board board in boards)
             {
-                BoardBgDTO boardBgDTO = new BoardBgDTO();
+                foreach(var userBoard in userBoards)
+                {
+                    if(userBoard.BoardId == board.BoardId)
+                    {
+                        BoardBgDTO boardBgDTO = new BoardBgDTO();
                 
-                boardBgDTO.Id = board.BoardId;
-                boardBgDTO.Title = board.Title;
-                boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
-                boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
-                boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
+                        boardBgDTO.Id = board.BoardId;
+                        boardBgDTO.Title = board.Title;
+                        boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
+                        boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
+                        boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
 
-                boardsBgDTO.Add(boardBgDTO);
+                        boardsBgDTO.Add(boardBgDTO);
+                    }
+                }
+                 
             }
             return boardsBgDTO;
         }
 
-        public int Create(BoardDTO newBoardDTO)
+        public int Create(BoardDTO newBoardDTO, string userId)
         {
+            if (userId == null)
+            {
+                throw new ApiException(400, 19);
+            }
             Board board = new Board();
             board.Title = newBoardDTO.Title;
             board.CurrentBackgroundColorId = newBoardDTO.CurrentBackgroundColorId;
-            _trelloDbContext.Boards.Add(board);
+
             try
             {
+                var test = new UserBoard(){ UserId = userId };
+                board.UserBoards.Add(test);
+
+                _trelloDbContext.Boards.Add(board);
                 _trelloDbContext.SaveChanges();
             }
             
-            catch (Exception)
+            catch (Exception innerEx)
             {
-                throw new BoardTitleAlreadyExists();//throw custom repo-ex
+                throw new ApiException(400, innerEx, 1);
             }
             return board.BoardId;
         }
@@ -129,9 +128,9 @@ namespace TrelloProject.DAL.Repositories
             {
                 return (_trelloDbContext.SaveChanges() > 0 ? true : false);
             }
-            catch (Exception)
+            catch (Exception innerEx)
             {
-                throw new BoardTitleAlreadyExists();//throw custom repo-ex
+                throw new ApiException(400, innerEx, 2);
             }
         }
 
@@ -152,12 +151,48 @@ namespace TrelloProject.DAL.Repositories
                 }
                  
             }
-            catch (Exception)
+            catch (Exception innerEx)
             {
-                throw new Exception();
+                throw new ApiException(400, innerEx, 7);
+            }           
+        }
+
+        public string GetUserIdFromContext(int boardId)
+        {
+            var userBoard = _trelloDbContext.UserBoards.Where(b => b.BoardId == boardId).AsNoTracking().FirstOrDefault();
+            string userId = string.Empty;
+            try
+            {
+                userId = userBoard.UserId;
+            }
+
+            catch(Exception)
+            {
+                throw new ApiException(400, new Exception("You do not own this board"), 20);
             }
             
-            
+            return userId;
+        }
+
+        public List<BoardBgDTO> GetAllBoards()
+        {
+            IEnumerable<Board> boards = _trelloDbContext.Boards.Include(b => b.BackgroundColor)
+                                                               .AsNoTracking()
+                                                               .ToList();
+            List<BoardBgDTO> boardsBgDTO = new List<BoardBgDTO>();
+            foreach (Board board in boards)
+            {
+                BoardBgDTO boardBgDTO = new BoardBgDTO();
+
+                boardBgDTO.Id = board.BoardId;
+                boardBgDTO.Title = board.Title;
+                boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
+                boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
+                boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
+
+                boardsBgDTO.Add(boardBgDTO);
+            }
+            return boardsBgDTO;
         }
     }
 }

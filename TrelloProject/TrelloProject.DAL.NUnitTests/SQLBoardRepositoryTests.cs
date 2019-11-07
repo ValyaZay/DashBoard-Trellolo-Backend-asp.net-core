@@ -30,8 +30,8 @@ namespace TrelloProject.DAL.NUnitTests
             using (var context = new TrelloDbContext(options))
             {
                 var repository = new SQLBoardRepository(context);
-                var result = repository.GetAllBoards();
-                var countOfBoardsInRepository = repository.GetAllBoards().Count;
+                var result = repository.GetAllBoards("userId");
+                var countOfBoardsInRepository = repository.GetAllBoards("userId").Count;
 
                 //Assert
                 Assert.IsInstanceOf<List<BoardDTO>>(result);
@@ -52,8 +52,8 @@ namespace TrelloProject.DAL.NUnitTests
             using (var context = new TrelloDbContext(options))
             {
                 var repository = new SQLBoardRepository(context);
-                var result = repository.GetAllBoards();
-                var countOfBoardsInRepository = repository.GetAllBoards().Count;
+                var result = repository.GetAllBoards("userId");
+                var countOfBoardsInRepository = repository.GetAllBoards("userId").Count;
 
                 //Assert
                 Assert.IsInstanceOf<List<BoardDTO>>(result);

@@ -13,6 +13,8 @@ using TrelloProject.DTOsAndViewModels.ViewModels;
 using Microsoft.AspNetCore.Mvc.Testing;
 using TrelloProject.DAL.EF;
 using Microsoft.EntityFrameworkCore;
+using TrelloProject.WEB.Infrastructure.ApiResponse;
+using Newtonsoft.Json;
 
 namespace TrelloProject.IntegrationTests
 {
@@ -22,26 +24,30 @@ namespace TrelloProject.IntegrationTests
         public async Task Get_IfTheDBIsNotEmpty_ReturnsOKResponseAndCorrectCount()
         {
             //Arrange
-
-            //Act
-            var response = await TestClient.GetAsync(ApiRoutes.BackgroundColor.GetAll);
             
-            //Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returnedCollection = await response.Content.ReadAsAsync<List<BgColorViewModel>>();
-            returnedCollection.Count.Should().BeGreaterThan(0);
-            returnedCollection.Should().NotBeNullOrEmpty();
-            returnedCollection.Should().BeOfType<List<BgColorViewModel>>();
-            returnedCollection.Should().NotContainNulls();
+            // Act
+            var responseMessageGet = await TestClient.GetAsync(ApiRoutes.BackgroundColor.GetAll);
+            var jsonStringGet = await responseMessageGet.Content.ReadAsStringAsync();
+            var apiResponseGet = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringGet);
 
+            var jsonStringResult = apiResponseGet.Result.ToString();
+            var apiResult = JsonConvert.DeserializeObject<List<BgColorViewModel>>(jsonStringResult);
+            int apiResultCount = apiResult.Count;
+
+            // Assert
+            apiResult.Should().BeOfType<List<BgColorViewModel>>();
+            apiResult.Should().HaveCount(apiResultCount);
+            apiResponseGet.StatusCode.Should().Be(200);
+            apiResponseGet.CustomCode.Should().Be(0);
+            apiResponseGet.Should().NotBeNull();
         }
 
         private HttpClient TestClientInMemory;
         [Fact]
-        public async Task Get_IfTheDBIsEmpty_ReturnsOKResponseWithMessage()
+        public async Task Get_IfTheDBIsEmpty_ReturnsOKResponseAndZeroCount()
         {
             // Arrange
-            var appFactory = new WebApplicationFactory<Startup>()
+            var appFactory = new WebApplicationFactory<Startup>() 
                 .WithWebHostBuilder(builder =>
                 {
                     builder.ConfigureServices(services =>
@@ -54,13 +60,22 @@ namespace TrelloProject.IntegrationTests
                     });
                 });
             TestClientInMemory = appFactory.CreateClient();
-
+            
             // Act
-            var response = await TestClientInMemory.GetAsync(ApiRoutes.BackgroundColor.GetAll);
+            var responseMessageGet = await TestClientInMemory.GetAsync(ApiRoutes.BackgroundColor.GetAll);
+            var jsonStringGet = await responseMessageGet.Content.ReadAsStringAsync();
+            var apiResponseGet = JsonConvert.DeserializeObject<ApiResponseSuccess>(jsonStringGet);
+
+            var jsonStringResult = apiResponseGet.Result.ToString();
+            var apiResult = JsonConvert.DeserializeObject<List<BgColorViewModel>>(jsonStringResult);
+            int apiResultCount = apiResult.Count;
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            (await response.Content.ReadAsAsync<string>()).Should().BeEquivalentTo("There are no BgColor created.");
+            apiResult.Should().BeOfType<List<BgColorViewModel>>();
+            apiResult.Should().HaveCount(apiResultCount);
+            apiResponseGet.StatusCode.Should().Be(200);
+            apiResponseGet.CustomCode.Should().Be(0);
+            apiResponseGet.Should().NotBeNull();
         }
     }
 }
