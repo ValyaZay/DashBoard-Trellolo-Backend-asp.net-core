@@ -12,5 +12,8 @@ namespace TrelloProject.BLL.Interfaces.ServicesInterfaces
         bool UpdateBoardDTO(BoardUpdateViewModel boardUpdateViewModel);
         bool DeleteBoardDTO(int id);
         bool UserOwnsBoard(int boardId, string userId);
+        
+
+        List<BoardBgViewModel> GetAllBoards();
     }
 }

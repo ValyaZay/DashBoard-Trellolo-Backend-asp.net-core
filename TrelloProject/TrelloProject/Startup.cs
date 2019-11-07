@@ -65,6 +65,8 @@ namespace TrelloProject
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddAuthorization();
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -128,7 +130,7 @@ namespace TrelloProject
                 app.UseHsts();
             }
             app.UseAuthentication();
-
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

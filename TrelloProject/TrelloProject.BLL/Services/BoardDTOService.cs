@@ -66,7 +66,7 @@ namespace TrelloProject.BLL.Services
                 {
                     throw new ApiException(400, innerEx, 6);
                 }
-                
+              
             }
         }
 
@@ -96,6 +96,33 @@ namespace TrelloProject.BLL.Services
                 throw new ApiException(400, innerEx, 10);
             }
          
+        }
+
+        public List<BoardBgViewModel> GetAllBoards()
+        {
+            try
+            {
+                var boardsBgDTO = _boardRepository.GetAllBoards();
+
+                List<BoardBgViewModel> boardBgViewModels = new List<BoardBgViewModel>();
+
+                foreach (var boardBgDTO in boardsBgDTO)
+                {
+                    BoardBgViewModel boardBgViewModel = new BoardBgViewModel();
+                    boardBgViewModel.Id = boardBgDTO.Id;
+                    boardBgViewModel.Title = boardBgDTO.Title;
+                    boardBgViewModel.BgColorId = boardBgDTO.BgColorId;
+                    boardBgViewModel.BgColorName = boardBgDTO.BgColorName;
+                    boardBgViewModel.BgColorHex = boardBgDTO.BgColorHex;
+
+                    boardBgViewModels.Add(boardBgViewModel);
+                }
+                return boardBgViewModels;
+            }
+            catch (Exception innerEx)
+            {
+                throw new ApiException(400, innerEx, 10);
+            }
         }
 
         public BoardBgViewModel GetBoard(int id)

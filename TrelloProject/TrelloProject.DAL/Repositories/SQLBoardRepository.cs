@@ -154,9 +154,7 @@ namespace TrelloProject.DAL.Repositories
             catch (Exception innerEx)
             {
                 throw new ApiException(400, innerEx, 7);
-            }
-            
-            
+            }           
         }
 
         public string GetUserIdFromContext(int boardId)
@@ -174,6 +172,27 @@ namespace TrelloProject.DAL.Repositories
             }
             
             return userId;
+        }
+
+        public List<BoardBgDTO> GetAllBoards()
+        {
+            IEnumerable<Board> boards = _trelloDbContext.Boards.Include(b => b.BackgroundColor)
+                                                               .AsNoTracking()
+                                                               .ToList();
+            List<BoardBgDTO> boardsBgDTO = new List<BoardBgDTO>();
+            foreach (Board board in boards)
+            {
+                BoardBgDTO boardBgDTO = new BoardBgDTO();
+
+                boardBgDTO.Id = board.BoardId;
+                boardBgDTO.Title = board.Title;
+                boardBgDTO.BgColorId = board.BackgroundColor.BackgroundColorId;
+                boardBgDTO.BgColorName = board.BackgroundColor.ColorName;
+                boardBgDTO.BgColorHex = board.BackgroundColor.ColorHex;
+
+                boardsBgDTO.Add(boardBgDTO);
+            }
+            return boardsBgDTO;
         }
     }
 }

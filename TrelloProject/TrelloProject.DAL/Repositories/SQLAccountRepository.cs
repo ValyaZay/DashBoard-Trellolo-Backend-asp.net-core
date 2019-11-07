@@ -22,15 +22,16 @@ namespace TrelloProject.DAL.Repositories
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public SQLAccountRepository(UserManager<User> userManager,
                                    SignInManager<User> signInManager,
-                                   
+                                   RoleManager<IdentityRole> roleManager,
                                    IConfiguration configuration) 
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            
+            _roleManager = roleManager;
             _configuration = configuration;
         }
         
@@ -57,6 +58,7 @@ namespace TrelloProject.DAL.Repositories
             try
             {
                 IdentityResult result = await _userManager.CreateAsync(user, password);
+                                
 
                 if (!result.Succeeded)
                 {
@@ -65,9 +67,10 @@ namespace TrelloProject.DAL.Repositories
                         Errors = result.Errors.Select(x => x.Description)
                     };
                 }
+                //here may be added a custom Claim in order to Authorize by a custom claim
 
                 await _userManager.AddToRoleAsync(user, "User");
-                return GenerateAuthenticationResultForUser(user);
+                return await GenerateAuthenticationResultForUser(user);
             }
             catch (Exception innerEx)
             {
@@ -75,22 +78,41 @@ namespace TrelloProject.DAL.Repositories
             }
         }
 
-        private AuthenticationResult GenerateAuthenticationResultForUser(User user)
+        private async Task<AuthenticationResult> GenerateAuthenticationResultForUser(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtSettingsFromConfig = _configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
             var key = Encoding.ASCII.GetBytes(jwtSettingsFromConfig.Secret);
 
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("id", user.Id)
+            };
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach (var userRole in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+                var role = await _roleManager.FindByNameAsync(userRole);
+                if (role == null) continue;
+                var roleClaims = await _roleManager.GetClaimsAsync(role);
+
+                foreach (var roleClaim in roleClaims)
+                {
+                    if (claims.Contains(roleClaim))
+                        continue;
+
+                    claims.Add(roleClaim);
+                }
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                        new Claim("id", user.Id)
-                    }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -126,7 +148,7 @@ namespace TrelloProject.DAL.Repositories
                 };
             }
 
-            return GenerateAuthenticationResultForUser(existingUser);
+            return await GenerateAuthenticationResultForUser(existingUser);
         }
     }
 

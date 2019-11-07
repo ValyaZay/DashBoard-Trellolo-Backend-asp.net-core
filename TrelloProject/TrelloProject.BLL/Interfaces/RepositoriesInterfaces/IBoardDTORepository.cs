@@ -13,5 +13,8 @@ namespace TrelloProject.BLL.Interfaces.RepositoriesInterfaces
         bool Delete(int id);
 
         string GetUserIdFromContext(int boardId);
+
+        List<BoardBgDTO> GetAllBoards();
+       
     }
 }

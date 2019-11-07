@@ -12,7 +12,8 @@ namespace TrelloProject.WEB.Contracts.V1
         public const string Version = "v1";
 
         public const string Base = Root + "/" + Version;
-        public static class Board
+       
+        public static class AdminBoards
         {
             public const string GetAll = Base + "/board";
 
@@ -23,7 +24,19 @@ namespace TrelloProject.WEB.Contracts.V1
             public const string Delete = Base + "/board/{id}";
 
             public const string Create = Base + "/board";
+        }
 
+        public static class UserBoards
+        {          
+            public const string GetAll = Base + "/users/{userId}/board";
+
+            public const string GetById = Base + "/users/{userId}/board/{id}";
+
+            public const string Update = Base + "/users/{userId}/board/";
+
+            public const string Delete = Base + "/users/{userId}/board/{id}";
+
+            public const string Create = Base + "/users/{userId}/board";
         }
 
         public static class BackgroundColor
@@ -38,7 +51,6 @@ namespace TrelloProject.WEB.Contracts.V1
             public const string GetRegisteredUserById = Base + "/account/{id}";
 
             public const string Login = Base + "/account/login";
-            
         }
 
         public static class Administration
@@ -46,6 +58,5 @@ namespace TrelloProject.WEB.Contracts.V1
             public const string CreateRole = Base + "/administration/createrole";
             public const string GetRoleById = Base + "/administration/role/{id}";
         }
-
     }
 }
