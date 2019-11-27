@@ -63,6 +63,11 @@ namespace TrelloProject
             Configuration.Bind(nameof(jwtSettings), jwtSettings);
             services.AddSingleton(nameof(jwtSettings));
 
+            services.AddCors(opts =>
+            {
+                opts.AddDefaultPolicy(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddAuthorization();
@@ -114,8 +119,8 @@ namespace TrelloProject
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             ConfigurateSeedDatabase(app);
-           
 
+            app.UseCors();
             app.UseHealthChecks("/health");
 
 

@@ -60,6 +60,7 @@ namespace TrelloProject.DAL.Repositories
         {
             IEnumerable<Board> boards = _trelloDbContext.Boards.Include(b => b.BackgroundColor)
                                                                .AsNoTracking()
+                                                               .OrderBy(b => b.Title)
                                                                .ToList();
 
             List<UserBoard> userBoards = _trelloDbContext.UserBoards.Where(x => x.UserId == userId).ToList();
@@ -178,6 +179,7 @@ namespace TrelloProject.DAL.Repositories
         {
             IEnumerable<Board> boards = _trelloDbContext.Boards.Include(b => b.BackgroundColor)
                                                                .AsNoTracking()
+                                                               .OrderBy(b => b.Title)
                                                                .ToList();
             List<BoardBgDTO> boardsBgDTO = new List<BoardBgDTO>();
             foreach (Board board in boards)

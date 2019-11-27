@@ -18,7 +18,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 namespace TrelloProject.WEB.Controllers.V1
 {
     [Produces("application/json")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, User")]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, User")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserBoardsController : Controller
     {
         private readonly IBoardDTOService _boardDTOService;

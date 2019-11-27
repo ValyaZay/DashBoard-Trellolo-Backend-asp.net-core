@@ -15,6 +15,7 @@ namespace TrelloProject.WEB.Controllers.V1
 {
     [Produces("application/json")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AdminBoardsController : Controller
     {
         private readonly IBoardDTOService _boardDTOService;
