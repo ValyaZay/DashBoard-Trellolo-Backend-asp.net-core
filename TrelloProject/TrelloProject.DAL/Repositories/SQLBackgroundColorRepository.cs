@@ -61,7 +61,12 @@ namespace TrelloProject.DAL.Repositories
             List<BackgroundColorDTO> bgColorsDTO = new List<BackgroundColorDTO>();
             foreach(var bgColor in bgColors)
             {
-                BackgroundColorDTO bgColorDTO = MapToBgColorDTO(bgColor);
+                BackgroundColorDTO bgColorDTO = new BackgroundColorDTO();
+
+                bgColorDTO.Id = bgColor.BackgroundColorId;
+                bgColorDTO.ColorName = bgColor.ColorName;
+                bgColorDTO.ColorHex = bgColor.ColorHex;
+
                 bgColorsDTO.Add(bgColorDTO);
             }
             return bgColorsDTO;

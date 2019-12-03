@@ -26,6 +26,7 @@ namespace TrelloProject.BLL.Services
                 foreach(var bgColorDTO in bgColorsDTOs)
                 {
                     BgColorViewModel bgColorViewModel = new BgColorViewModel();
+                    bgColorViewModel.Id = bgColorDTO.Id;
                     bgColorViewModel.ColorHex = bgColorDTO.ColorHex;
                     bgColorViewModel.ColorName = bgColorDTO.ColorName;
                     bgColorViewModels.Add(bgColorViewModel);
